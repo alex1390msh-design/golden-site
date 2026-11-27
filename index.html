@@ -70,6 +70,10 @@ body:not(.entered)>header,body:not(.entered)>main,body:not(.entered)>footer{disp
 .game-badge.pending{border-color:#66512c;background:#211b10;color:#e5c47b}
 .game-actions a.is-disabled{opacity:.48;pointer-events:none;filter:grayscale(1)}
 .download-state{margin:8px 0 16px;padding:12px 14px;border-radius:12px;background:#15130f;border:1px solid #493a22;color:#d4c49e;font-size:12px;line-height:1.9}
+
+/* USD to toman calculator */
+.currency-box{background:linear-gradient(145deg,#171a18,#10110f);border:1px solid #66512c;border-radius:16px;padding:22px;display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:end}
+.currency-box label{display:block;color:#c9bea5;font-size:12px;margin-bottom:7px}.currency-box input{width:100%;background:#090b0a;color:#fff;border:1px solid #4b4639;border-radius:9px;padding:13px;outline:none}.currency-result{background:#211a0e;border:1px solid #72582c;border-radius:11px;padding:13px}.currency-result small{display:block;color:#b8a77f;font-size:11px}.currency-result strong{display:block;color:#f5d58d;font-size:clamp(19px,3vw,27px);margin-top:5px;overflow-wrap:anywhere}.currency-rate-note{grid-column:1/-1;color:#a9a397;font-size:11px;line-height:2}.currency-rate-note input{max-width:210px;display:inline-block;margin:0 6px;padding:7px}.currency-rate-note button{background:#2c2415;border:1px solid #72582c;color:#f2d28a;border-radius:7px;padding:7px 10px;cursor:pointer}@media(max-width:560px){.currency-box{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -140,6 +144,8 @@ body:not(.entered)>header,body:not(.entered)>main,body:not(.entered)>footer{disp
 <div class="digital-cat"><div><span class="icon">📚</span><h3>آموزش دیجیتال</h3><p>راهنماها و محتوای آموزشی تولیدشده یا دارای اجازه انتشار.</p></div><span class="soon">به‌زودی · فعلاً غیرفعال</span></div>
 </div><div class="notice">این دسته‌ها فعلاً معرفی و پیش‌نمایش هستند؛ هیچ محصولی در این بخش برای خرید یا پرداخت فعال نیست.</div>
 </div></section>
+
+<section id="currency" class="wrap"><div class="section-head"><div><div class="eyebrow">MATINEX CURRENCY</div><h2>تبدیل قیمت دلار به تومان</h2><p>قیمت تقریبی محصولات دلاری را با نرخ بازار آزاد محاسبه کن.</p></div></div><div class="currency-box"><div><label for="usdAmount">مبلغ به دلار آمریکا (USD)</label><input id="usdAmount" type="number" min="0" step="0.01" value="10" inputmode="decimal"></div><div class="currency-result"><small>قیمت تقریبی به تومان</small><strong id="tomanResult">—</strong></div><div class="currency-rate-note">نرخ مرجع فعلی: <b id="currencyRateLabel">۲۹۳٬۷۰۰ تومان</b> برای هر دلار · تاریخ بررسی: ۲۷ نوامبر ۲۰۲۶<br>نرخ بازار آزاد متغیر است و این محاسبه صرفاً تخمینی است. <a href="https://ezrate.me/usd/en" target="_blank" rel="noopener noreferrer" style="color:#f1d28b;text-decoration:underline">مشاهده نرخ به‌روز بازار</a><br><label for="customUsdRate" style="display:inline-block;margin-top:8px">تغییر دستی نرخ هر دلار (تومان):</label><input id="customUsdRate" type="number" min="1" step="100" value="293700"><button type="button" id="saveUsdRate">اعمال نرخ</button></div></div></section>
 <section class="about" id="about"><div class="wrap about-box"><div><div class="eyebrow">ABOUT MATINEX</div><h2>بازی خوب، تجربه بهتر.</h2><p>MATINEX GAMING پروژه‌ای مستقل برای معرفی بازی‌های کامپیوتری است. تلاش می‌کنیم اطلاعات پایه، نیازمندی‌های سیستم و راه دسترسی به منبع رسمی هر بازی را یک‌جا در اختیار گیمرها قرار دهیم.</p><div class="creator-credit"><span>بنیان‌گذار، طراح و مدیر پروژه</span><strong>متین شعبانی <b>·</b> MATINEX</strong></div></div><a class="btn btn-outline" href="#home">بازگشت به بالا ↑</a></div></section>
 
 <div class="compare-tray" id="compareTray" aria-live="polite"><span id="compareCount">۰ بازی برای مقایسه انتخاب شده</span><div class="compare-tray-actions"><button class="secondary" id="clearCompare" type="button">پاک‌کردن</button><button id="openCompare" type="button">مقایسه بازی‌ها</button></div></div>
@@ -449,6 +455,17 @@ $('#shareSite').addEventListener('click',async()=>{
   alert('لینک سایت کپی شد؛ حالا می‌تونی برای دوستت بفرستی.');
  }catch(err){if(err.name!=='AbortError')alert('لینک سایت را از نوار آدرس مرورگر کپی کن.')}
 });
+
+// MATINEX USD/IRT estimator. The displayed market rate is a dated reference, not a live feed.
+const usdRateKey='matinex-usd-toman-rate';
+let usdRate=Number(localStorage.getItem(usdRateKey))||293700;
+const usdInput=document.getElementById('usdAmount'),rateInput=document.getElementById('customUsdRate');
+function formatFa(n){return new Intl.NumberFormat('fa-IR',{maximumFractionDigits:0}).format(Math.round(n));}
+function renderCurrency(){const amount=Math.max(0,Number(usdInput.value)||0);document.getElementById('tomanResult').textContent=formatFa(amount*usdRate)+' تومان';document.getElementById('currencyRateLabel').textContent=formatFa(usdRate)+' تومان';}
+rateInput.value=String(usdRate);usdInput.addEventListener('input',renderCurrency);
+document.getElementById('saveUsdRate').addEventListener('click',()=>{const value=Number(rateInput.value);if(!Number.isFinite(value)||value<=0){alert('یک نرخ معتبر وارد کن.');return;}usdRate=value;try{localStorage.setItem(usdRateKey,String(usdRate));}catch{}renderCurrency();alert('نرخ جدید فقط در همین مرورگر ذخیره شد.');});
+renderCurrency();
+
 ensureCompareButtons();updateFavorites();renderCustomCards();apply();
 
 const welcomeScreen=$('#welcomeScreen');
