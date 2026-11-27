@@ -1069,14 +1069,28 @@ categoryGrid.querySelectorAll('[data-category]').forEach(button=>{
 });
 
 const welcomeScreen=$('#welcomeScreen');
+let matinexEntered=false;
 function enterMatinex(target){
+ if(matinexEntered)return;
+ matinexEntered=true;
+ // Hide the welcome overlay immediately; avoid a long smooth-scroll animation on mobile.
  document.body.classList.add('entered');
- welcomeScreen.remove();
- if(target){const section=$(target);if(section)section.scrollIntoView({behavior:'smooth',block:'start'})}
+ if(welcomeScreen)welcomeScreen.remove();
+ if(target){
+  const section=document.getElementById(target.replace(/^#/,'')); 
+  if(section){
+   try{history.replaceState(null,'',target)}catch(e){}
+   section.scrollIntoView({behavior:'auto',block:'start'});
+  }
+ }
 }
-$('#enterStore').addEventListener('click',()=>enterMatinex('#games'));
-$('#enterAbout').addEventListener('click',()=>enterMatinex('#about'));
-qsa('[data-welcome-link]').forEach(link=>link.addEventListener('click',e=>{e.preventDefault();enterMatinex(link.getAttribute('href'))}));
+const enterStoreButton=$('#enterStore');
+const enterAboutButton=$('#enterAbout');
+if(enterStoreButton)enterStoreButton.addEventListener('click',()=>enterMatinex('#games'));
+if(enterAboutButton)enterAboutButton.addEventListener('click',()=>enterMatinex('#about'));
+qsa('[data-welcome-link]').forEach(link=>link.addEventListener('click',e=>{
+ e.preventDefault();enterMatinex(link.getAttribute('href'));
+}));
 
 
 
