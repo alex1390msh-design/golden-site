@@ -48,7 +48,7 @@
 | `admin-list-tickets` | GET | دریافت حداکثر ۱۰۰ تیکت برای مدیر |
 | `admin-list-orders` | GET | دریافت حداکثر ۱۰۰ سفارش برای مدیر |
 
-برای انتشار، مسئول پروژه پس از نصب Supabase CLI، ورود به پروژه درست و تنظیم Secrets، این دستورات را اجرا می‌کند:
+برای انتشار، مسئول پروژه پس از نصب Supabase CLI، ورود به پروژه درست و تنظیم Secrets، می‌تواند از اسکریپت زیر در ریشه مخزن استفاده کند:\n\n```bash\nsupabase login\nsupabase link --project-ref YOUR_PROJECT_REF\nbash backend/deploy-functions.sh\n```\n\nاسکریپت فقط ۹ تابع Edge را منتشر می‌کند؛ پروژه را نمی‌سازد، SQL را اجرا نمی‌کند و Secrets را تنظیم نمی‌کند. اگر ترجیح می‌دهید دستی منتشر کنید، دستورات زیر را اجرا کنید:
 
 ```bash
 supabase functions deploy create-order
