@@ -184,6 +184,13 @@ footer{background:#07070c;border-top:1px solid #6b38a0}
 @media(max-width:1050px){main{grid-template-columns:minmax(0,1.5fr) minmax(250px,.9fr)}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.nav{flex-wrap:wrap;padding:8px 0}nav{order:3;width:100%;justify-content:center}}
 @media(max-width:700px){main{display:flex;flex-direction:column}.hero{width:100%;min-height:210px;padding:22px 10px}.dashboard-side{width:100%;order:2}.side-promo{display:none}#games{width:100%;order:1}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}main>section{width:100%}.nav{justify-content:center}.nav-actions{justify-content:center}nav{overflow:auto;justify-content:flex-start;white-space:nowrap;padding:6px}.brand{font-size:20px}}
 
+/* Digital catalog product cards */
+.digital-products-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:18px}
+.digital-product-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0;padding:16px;border:1px solid #4b3263;border-radius:13px;background:linear-gradient(145deg,#21152d,#100d18)}
+.digital-product-card h4{margin:0;color:#f0ddff;font-size:14px}.digital-product-card p{margin:0;color:#b9a9c9;font-size:11px;line-height:1.8}
+.digital-product-price{color:#b8f3ce;font-size:12px}.digital-product-state{color:#d1b5ec;font-size:10px;line-height:1.8}
+.digital-product-card a{margin-top:auto;padding:8px 11px;border:1px solid #8052a5;border-radius:8px;color:#ecd9ff;font-size:11px}
+.digital-product-card a:hover{background:#321b48}@media(max-width:560px){.digital-products-grid{grid-template-columns:1fr}.digital-product-card{padding:14px}}
 </style>
 </head>
 <body>
@@ -1035,40 +1042,47 @@ refreshSteamPrices(false);
 
 ensureCompareButtons();updateFavorites();renderCustomCards();apply();
 const digitalCategoryData={
-games:{icon:'🎮',title:'بازی و بسته‌های الحاقی',subtitle:'بازی‌های کامپیوتر و کنسول، DLC و محتوای اضافه',detail:'در این دسته می‌توانی بازی‌ها را بررسی کنی. لینک هر بازی به صفحه رسمی فروشگاه یا سازنده هدایت می‌شود؛ MATINEX فعلاً فایل بازی‌ها را میزبانی یا فروش مستقیم نمی‌کند.',status:'کاتالوگ بازی‌ها فعال است',button:'رفتن به فهرست بازی‌ها',target:'#grid'},
-giftcards:{icon:'🎁',title:'گیفت‌کارت',subtitle:'کارت هدیه پلتفرم‌ها و فروشگاه‌های دیجیتال',detail:'برای هر گیفت‌کارت باید مبلغ، ارز، کشور یا ریجن قابل استفاده، روش تحویل و شرایط بازپرداخت مشخص شود. هنوز محصول تأییدشده‌ای برای عرضه ثبت نشده است.',status:'صفحه دسته فعال · محصولی ثبت نشده'},
-activation:{icon:'🔑',title:'کد فعال‌سازی',subtitle:'کدهای قانونی بازی و نرم‌افزار',detail:'کدها فقط پس از تأیید منبع، اصالت، ریجن، محدودیت فعال‌سازی و مجوز فروش قابل فهرست‌شدن هستند.',status:'صفحه دسته فعال · محصولی ثبت نشده'},
-subscriptions:{icon:'⭐',title:'اشتراک سرویس‌ها',subtitle:'اشتراک سرویس‌های دیجیتال مجاز',detail:'هر اشتراک باید با قوانین سرویس‌دهنده سازگار باشد و مدت، امکانات، کشور پشتیبانی‌شده و شیوه تحویل آن روشن باشد.',status:'صفحه دسته فعال · محصولی ثبت نشده'},
-software:{icon:'🧩',title:'نرم‌افزار و ابزار',subtitle:'ابزارهای کاربردی و نرم‌افزارهای دارای مجوز',detail:'در این بخش فقط نرم‌افزارهای رایگان رسمی یا محصولات دارای مجوز توزیع معتبر معرفی می‌شوند.',status:'صفحه دسته فعال · محصولی ثبت نشده'},
-learning:{icon:'📚',title:'آموزش دیجیتال',subtitle:'آموزش‌ها و محتوای دیجیتال مجاز',detail:'این دسته برای آموزش‌های تولیدشده توسط MATINEX یا محتواهایی است که اجازه انتشارشان وجود دارد؛ سطح، سرفصل، زبان و نمونه درس هر محصول نمایش داده خواهد شد.',status:'صفحه دسته فعال · محصولی ثبت نشده'}
+games:{icon:'🎮',title:'بازی و بسته‌های الحاقی',subtitle:'بازی‌های کامپیوتر و کنسول و DLC',detail:'فهرست بازی‌های MATINEX را ببین؛ خرید و دریافت از فروشگاه رسمی ناشر انجام می‌شود.',status:'کتابخانه بازی‌ها فعال است',target:'#grid',products:[]},
+giftcards:{icon:'🎁',title:'گیفت‌کارت',subtitle:'کارت هدیه پلتفرم‌ها',detail:'این موارد برای معرفی هستند. فروش تا تأمین‌کننده معتبر و بررسی ریجن غیرفعال است.',status:'معرفی فعال · فروش غیرفعال',products:[{name:'Steam Wallet Gift Card',kind:'گیفت‌کارت استیم',price:'قیمت وابسته به کشور و ریجن',state:'فقط معرفی · بدون فروش',url:'https://store.steampowered.com/digitalgiftcards/'},{name:'Xbox Gift Card',kind:'گیفت‌کارت ایکس‌باکس',price:'قیمت وابسته به ریجن',state:'فقط معرفی · بدون فروش',url:'https://www.xbox.com/gift-cards'}]},
+activation:{icon:'🔑',title:'کد فعال‌سازی',subtitle:'کدهای قانونی بازی و نرم‌افزار',detail:'کدها فقط با منبع معتبر، اصالت و سازگاری منطقه‌ای عرضه می‌شوند.',status:'معرفی فعال · کد فروشی ثبت نشده',products:[{name:'کدهای بازی Steam',kind:'کد فعال‌سازی بازی',price:'وابسته به عنوان و ریجن',state:'در انتظار تأمین‌کننده مجاز',url:'https://store.steampowered.com/'},{name:'لایسنس نرم‌افزار',kind:'کد قانونی نرم‌افزار',price:'وابسته به سازنده',state:'در انتظار تأمین‌کننده مجاز',url:'https://www.microsoft.com/store'}]},
+subscriptions:{icon:'⭐',title:'اشتراک سرویس‌ها',subtitle:'اشتراک سرویس‌های دیجیتال',detail:'کشور پشتیبانی‌شده، مدت و قوانین ارائه‌دهنده باید پیش از تهیه بررسی شود.',status:'معرفی فعال · فروش غیرفعال',products:[{name:'Xbox Game Pass',kind:'اشتراک بازی',price:'وابسته به منطقه',state:'فقط معرفی · بدون فروش',url:'https://www.xbox.com/xbox-game-pass'},{name:'PlayStation Plus',kind:'اشتراک پلی‌استیشن',price:'وابسته به منطقه',state:'فقط معرفی · بدون فروش',url:'https://www.playstation.com/ps-plus/'}]},
+software:{icon:'🧩',title:'نرم‌افزار و ابزار',subtitle:'ابزارهای دیجیتال رایگان و مجاز',detail:'دریافت مستقیم از وب‌سایت رسمی سازنده انجام می‌شود؛ MATINEX فایل نصب را میزبانی نمی‌کند.',status:'۳ ابزار رایگان معرفی شده',products:[{name:'Blender',kind:'مدل‌سازی سه‌بعدی',price:'رایگان',state:'دریافت از منبع رسمی',url:'https://www.blender.org/download/'},{name:'Godot Engine',kind:'موتور بازی‌سازی',price:'رایگان و متن‌باز',state:'دریافت از منبع رسمی',url:'https://godotengine.org/download/'},{name:'Visual Studio Code',kind:'ویرایشگر کد',price:'رایگان',state:'دریافت از منبع رسمی',url:'https://code.visualstudio.com/Download'}]},
+learning:{icon:'📚',title:'آموزش دیجیتال',subtitle:'منابع آموزشی رسمی و رایگان',detail:'منابع آموزشی برای برنامه‌نویسی، بازی‌سازی و طراحی سه‌بعدی.',status:'۳ منبع آموزشی معرفی شده',products:[{name:'Python Tutorial',kind:'آموزش رسمی پایتون',price:'رایگان',state:'مطالعه آنلاین',url:'https://docs.python.org/3/tutorial/'},{name:'Godot Documentation',kind:'راهنمای بازی‌سازی',price:'رایگان',state:'مطالعه آنلاین',url:'https://docs.godotengine.org/'},{name:'Blender Manual',kind:'راهنمای بلندر',price:'رایگان',state:'مطالعه آنلاین',url:'https://docs.blender.org/manual/en/latest/'}]}
 };
 const categoryView=document.getElementById('digitalCategoryView');
 const categoryGrid=document.getElementById('digitalCategoryGrid');
 function resetDigitalCategory(){
  categoryGrid.querySelectorAll('.digital-cat').forEach(x=>{x.classList.remove('active');x.setAttribute('aria-pressed','false');});
- categoryView.innerHTML='<div class="category-view-empty"><span>✦</span><h3>به فروشگاه دیجیتال MATINEX خوش آمدی</h3><p>یکی از دسته‌ها را انتخاب کن تا صفحه اختصاصی آن باز شود.</p></div>';
+ categoryView.innerHTML='<div class="category-view-empty"><span>✦</span><h3>به فروشگاه دیجیتال MATINEX خوش آمدی</h3><p>یکی از دسته‌ها را انتخاب کن تا محصولات و منابع آن نمایش داده شود.</p></div>';
+}
+function renderDigitalProduct(p){
+ const card=document.createElement('article');card.className='digital-product-card';
+ const h=document.createElement('h4');h.textContent=p.name;
+ const kind=document.createElement('p');kind.textContent=p.kind;
+ const price=document.createElement('strong');price.className='digital-product-price';price.textContent=p.price;
+ const state=document.createElement('small');state.className='digital-product-state';state.textContent=p.state;
+ const link=document.createElement('a');link.href=p.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='مشاهده منبع رسمی ↗';
+ card.append(h,kind,price,state,link);return card;
 }
 categoryGrid.querySelectorAll('[data-category]').forEach(button=>{
  button.setAttribute('aria-pressed','false');
  button.addEventListener('click',()=>{
-  const data=digitalCategoryData[button.dataset.category];if(!data)return;
-  categoryGrid.querySelectorAll('.digital-cat').forEach(x=>{const selected=x===button;x.classList.toggle('active',selected);x.setAttribute('aria-pressed',String(selected));});
+  const d=digitalCategoryData[button.dataset.category];if(!d)return;
+  categoryGrid.querySelectorAll('.digital-cat').forEach(x=>{const yes=x===button;x.classList.toggle('active',yes);x.setAttribute('aria-pressed',String(yes));});
   categoryView.replaceChildren();
   const head=document.createElement('div');head.className='category-view-head';
-  const icon=document.createElement('span');icon.className='icon';icon.textContent=data.icon;
-  const titleWrap=document.createElement('div'),title=document.createElement('h3'),subtitle=document.createElement('small');
-  title.textContent=data.title;subtitle.textContent=data.subtitle;titleWrap.append(title,subtitle);head.append(icon,titleWrap);
-  const status=document.createElement('span');status.className='category-view-status';status.textContent='● '+data.status;
-  const desc=document.createElement('p');desc.textContent=data.detail;
-  const empty=document.createElement('div');empty.className='category-empty-products';empty.textContent=button.dataset.category==='games'?'فهرست بازی‌های موجود در کتابخانه اصلی سایت قرار دارد. برای رفتن مستقیم به آن از دکمه زیر استفاده کن.':'هنوز محصول تأییدشده‌ای در این دسته ثبت نشده است. این صفحه آماده نمایش محصولات است؛ فعلاً امکان سفارش و پرداخت وجود ندارد.';
+  const icon=document.createElement('span');icon.className='icon';icon.textContent=d.icon;
+  const wrap=document.createElement('div'),h=document.createElement('h3'),sub=document.createElement('small');h.textContent=d.title;sub.textContent=d.subtitle;wrap.append(h,sub);head.append(icon,wrap);
+  const status=document.createElement('span');status.className='category-view-status';status.textContent='● '+d.status;
+  const desc=document.createElement('p');desc.textContent=d.detail;
+  const products=document.createElement('div');products.className='digital-products-grid';(d.products||[]).forEach(p=>products.append(renderDigitalProduct(p)));
   const actions=document.createElement('div');actions.className='category-view-actions';
-  if(data.target){const link=document.createElement('a');link.href=data.target;link.textContent=data.button;link.addEventListener('click',e=>{e.preventDefault();document.querySelector(data.target)?.scrollIntoView({behavior:'smooth',block:'start'});});actions.append(link);}
-  const back=document.createElement('button');back.type='button';back.textContent='بستن صفحه دسته';back.addEventListener('click',()=>{resetDigitalCategory();categoryGrid.scrollIntoView({behavior:'smooth',block:'center'});});actions.append(back);
-  categoryView.append(head,status,desc,empty,actions);
-  categoryView.scrollIntoView({behavior:'smooth',block:'nearest'});
+  if(d.target){const go=document.createElement('a');go.href=d.target;go.textContent='رفتن به فهرست بازی‌ها';go.addEventListener('click',e=>{e.preventDefault();document.querySelector(d.target)?.scrollIntoView({behavior:'auto',block:'start'});});actions.append(go);}
+  const back=document.createElement('button');back.type='button';back.textContent='بستن صفحه دسته';back.addEventListener('click',()=>{resetDigitalCategory();categoryGrid.scrollIntoView({behavior:'auto',block:'center'});});actions.append(back);
+  categoryView.append(head,status,desc);if(products.childElementCount)categoryView.append(products);categoryView.append(actions);
+  categoryView.scrollIntoView({behavior:'auto',block:'nearest'});
  });
 });
-
 const welcomeScreen=$('#welcomeScreen');
 let matinexEntered=false;
 function enterMatinex(target){
