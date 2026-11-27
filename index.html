@@ -265,7 +265,7 @@ footer{background:#07070c;border-top:1px solid #6b38a0}
 
 <section id="support"><div class="wrap"><div class="section-head"><div><div class="eyebrow">MATINEX CUSTOMER CARE</div><h2>مرکز راهنمایی و پشتیبانی</h2><p>پاسخ پرسش‌های متداول، بررسی سفارش آزمایشی و ثبت پیام پشتیبانی.</p></div></div>
 <div class="support-grid">
- <div class="support-panel"><h3>پیگیری سفارش</h3><p>شماره سفارش آزمایشی را وارد کن تا وضعیت ذخیره‌شده در همین مرورگر نمایش داده شود.</p><form id="orderLookupForm" class="support-form"><label for="orderLookupInput">شماره سفارش</label><input id="orderLookupInput" placeholder="مثلاً MX-..." maxlength="40" required><button class="btn btn-gold" type="submit">بررسی سفارش</button></form><div id="orderLookupResult" class="support-result" aria-live="polite">هنوز شماره سفارشی جست‌وجو نشده است.</div></div>
+ <div class="support-panel"><h3>پیگیری سفارش</h3><p>شماره سفارش آزمایشی را وارد کن تا وضعیت ذخیره‌شده در همین مرورگر نمایش داده شود.</p><form id="orderLookupForm" class="support-form"><label for="orderLookupInput">شماره سفارش</label><input id="orderLookupInput" placeholder="مثلاً MX-..." maxlength="40" required><button class="btn btn-gold" type="submit">بررسی سفارش</button></form><div id="orderLookupResult" class="support-result" aria-live="polite">هنوز شماره سفارشی جست‌وجو نشده است.</div><div class="spec-title" style="margin-top:14px">سفارش‌های حساب من</div><button class="btn btn-outline" id="loadMyOrders" type="button">نمایش همه سفارش‌های من</button><div id="myOrdersResult" class="support-result" aria-live="polite">برای مشاهده تاریخچه سفارش‌ها وارد حساب متصل‌شده شو.</div></div>
  <div class="support-panel"><h3>ارسال پیام به پشتیبانی</h3><p>در این نسخه پیام فقط در مرورگر فعلی ثبت می‌شود و به اپراتور ارسال نمی‌شود.</p><form id="supportForm" class="support-form"><label for="supportName">نام نمایشی</label><input id="supportName" maxlength="35" required placeholder="نام شما"><label for="supportSubject">موضوع</label><select id="supportSubject"><option>مشکل دانلود</option><option>مشکل سفارش</option><option>پرسش درباره محصول</option><option>پیشنهاد برای MATINEX</option><option>سایر موارد</option></select><label for="supportMessage">متن پیام</label><textarea id="supportMessage" maxlength="700" required placeholder="پیامت را بنویس..."></textarea><button class="btn btn-gold" type="submit">ثبت پیام آزمایشی</button></form><div id="supportMessageStatus" class="support-result" aria-live="polite">از نوشتن اطلاعات حساس یا رمز عبور خودداری کن.</div><div class="spec-title" style="margin-top:18px">درخواست‌های قبلی من</div><button class="btn btn-outline" id="loadMyTickets" type="button">نمایش درخواست‌های من</button><div id="myTicketsResult" class="support-result" aria-live="polite">برای دیدن تاریخچه، به حساب کاربری متصل و وارد شو.</div></div>
 </div>
 <div class="faq-panel"><h3>پرسش‌های پرتکرار</h3>
@@ -746,6 +746,23 @@ $('#orderLookupForm').addEventListener('submit',async e=>{
  const line=document.createElement('div');line.textContent='محصولات: '+(order.items||[]).map(gameTitle).join('، ');
  const status=document.createElement('div');status.textContent='وضعیت: ثبت آزمایشی · پرداخت‌نشده';
  const date=document.createElement('div');date.textContent='تاریخ ثبت: '+new Date(order.createdAt).toLocaleString('fa-IR');result.append(title,line,status,date);
+});
+
+$('#loadMyOrders').addEventListener('click',async()=>{
+ const host=$('#myOrdersResult');host.textContent='در حال دریافت سفارش‌های حساب...';
+ if(!sbClient){host.textContent='ابتدا اتصال Supabase را در پنجره حساب کاربری تنظیم کن.';return}
+ try{
+  const data=await invokeCloud('list-my-orders');const orders=data.orders||[];host.replaceChildren();
+  if(!orders.length){host.textContent='هنوز سفارشی در این حساب ثبت نشده است.';return}
+  orders.forEach(order=>{
+   const card=document.createElement('div');card.className='review-item';
+   const title=document.createElement('strong');title.textContent='سفارش '+order.order_number;
+   const items=document.createElement('div');items.textContent='محصولات: '+(order.order_items||[]).map(x=>x.product_name+' × '+x.quantity).join('، ');
+   const status=document.createElement('small');status.textContent='وضعیت: '+({pending:'در انتظار بررسی',paid:'پرداخت‌شده',cancelled:'لغوشده',fulfilled:'تحویل‌شده'}[order.status]||order.status)+' · '+new Intl.NumberFormat('fa-IR').format(order.total_toman)+' تومان';
+   const date=document.createElement('small');date.textContent=new Date(order.created_at).toLocaleString('fa-IR');
+   card.append(title,items,status,date);host.append(card);
+  });
+ }catch(err){host.textContent='دریافت سفارش‌ها ناموفق بود: '+(err.message||'خطا')}
 });
 
 // Server-backed admin dashboard actions (requires a user in admin_users).
