@@ -67,3 +67,63 @@ create policy "Customers can read their own order items"
 -- No public/client insert or update policies are intentionally provided.
 -- Orders must be created by the authenticated Edge Function.
 -- Payment status must only be changed by a verified payment callback.
+
+
+-- Customer profiles: no password data is stored here; Supabase Auth manages credentials.
+create table if not exists public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  display_name text not null default '',
+  updated_at timestamptz not null default now()
+);
+alter table public.profiles enable row level security;
+drop policy if exists "Users can read their own profile" on public.profiles;
+create policy "Users can read their own profile"
+  on public.profiles for select to authenticated
+  using (auth.uid() = id);
+drop policy if exists "Users can update their own profile" on public.profiles;
+create policy "Users can update their own profile"
+  on public.profiles for update to authenticated
+  using (auth.uid() = id) with check (auth.uid() = id);
+
+create or replace function public.handle_new_user_profile()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.profiles (id, display_name)
+  values (new.id, coalesce(new.raw_user_meta_data ->> 'display_name', ''))
+  on conflict (id) do nothing;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created_profile on auth.users;
+create trigger on_auth_user_created_profile
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user_profile();
+
+-- Support tickets become shared only after the frontend is connected to Supabase Auth.
+create table if not exists public.support_tickets (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  subject text not null check (char_length(subject) between 2 and 100),
+  message text not null check (char_length(message) between 5 and 2000),
+  status text not null default 'open'
+    check (status in ('open', 'in_progress', 'answered', 'closed')),
+  created_at timestamptz not null default now()
+);
+create index if not exists support_tickets_user_created_idx
+  on public.support_tickets(user_id, created_at desc);
+alter table public.support_tickets enable row level security;
+drop policy if exists "Users can read their own support tickets" on public.support_tickets;
+create policy "Users can read their own support tickets"
+  on public.support_tickets for select to authenticated
+  using (auth.uid() = user_id);
+drop policy if exists "Users can create their own support tickets" on public.support_tickets;
+create policy "Users can create their own support tickets"
+  on public.support_tickets for insert to authenticated
+  with check (auth.uid() = user_id);
+
+-- No public update/delete policy for tickets: status changes must be handled by trusted staff tooling.
