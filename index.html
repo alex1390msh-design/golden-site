@@ -303,7 +303,7 @@ function renderCustomCards(){
   c.querySelector('.details-btn').dataset.game=g.id;c.querySelector('.favorite-btn').dataset.fav=g.id;c.querySelector('.download').href=g.url;
   $('#grid').append(c);
  });
- $('#gameCount').textContent=qsa('#grid .card').length+' بازی';ensureCompareButtons();updateFavorites();apply();
+ $('#gameCount').textContent=qsa('#grid .card').length+' بازی';ensureCompareButtons();updateFavorites();apply();renderCart();
 }
 function compareValue(id){
  const card=qsa('.card').find(x=>x.dataset.id===id);
