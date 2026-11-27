@@ -218,6 +218,7 @@ const compareSelection=[];
 const cartKey='matinex-cart-v1',ordersKey='matinex-demo-orders-v1';
 let cart=safeRead(cartKey,[]);if(!Array.isArray(cart))cart=[];
 let demoOrders=safeRead(ordersKey,[]);if(!Array.isArray(demoOrders))demoOrders=[];
+function matinexToman(price){const match=String(price||'').match(/\$\s*([0-9]+(?:\.[0-9]+)?)/);if(!match)return '';const rate=Number(localStorage.getItem('matinex-usd-toman-rate'))||293700;return 'حدود '+new Intl.NumberFormat('fa-IR',{maximumFractionDigits:0}).format(Number(match[1])*rate)+' تومان';}
 function updateFavorites(){
  qsa('.favorite-btn').forEach(b=>{const yes=favorites.includes(b.dataset.fav);b.classList.toggle('saved',yes);b.textContent=yes?'★':'☆';b.setAttribute('aria-pressed',String(yes));});
 }
@@ -278,7 +279,7 @@ function openGame(id,title,info){
  recentIds=[String(id),...recentIds.filter(x=>x!==String(id))].slice(0,6);safeWrite('matinex-recent-games',recentIds);
  activeReviewKey=String(id||title);resetRating();$('#reviewText').value='';renderReviews();
  $('#modalTitle').textContent=title;$('#modalDescription').textContent=info.desc||'';
- $('#modalGenre').textContent=info.genre||'ثبت نشده';$('#modalMode').textContent=info.mode||'نامشخص';$('#modalPrice').textContent=info.price||'اطلاعات ثبت نشده';
+ $('#modalGenre').textContent=info.genre||'ثبت نشده';$('#modalMode').textContent=info.mode||'نامشخص';$('#modalPrice').textContent=(info.price||'اطلاعات ثبت نشده')+(matinexToman(info.price)?' | '+matinexToman(info.price):'');
  const priceText=String(info.price||'').toLowerCase();
  const isFree=/رایگان|free/.test(priceText),isPaid=/پولی|paid|\$|usd/.test(priceText);
  const badge=$('#modalAvailabilityBadge');
@@ -351,7 +352,7 @@ function ensureCompareButtons(){
   const row=card.querySelector('.card-buttons');if(!row)return;
   const info=gameInfo[card.dataset.id];
   const meta=card.querySelector('.meta');
-  if(info&&meta&&!meta.querySelector('.price-chip')){const chip=document.createElement('span');chip.className='price-chip';chip.textContent=info.price;meta.append(chip)}
+  if(info&&meta&&!meta.querySelector('.price-chip')){const chip=document.createElement('span');chip.className='price-chip';chip.textContent=info.price+(matinexToman(info.price)?' · '+matinexToman(info.price):'');meta.append(chip)}
   if(!row.querySelector('.compare-btn')){const b=document.createElement('button');b.type='button';b.className='compare-btn';b.dataset.compare=card.dataset.id;b.textContent='مقایسه';row.append(b)}
   if(!row.querySelector('.cart-btn')){const c=document.createElement('button');c.type='button';c.className='cart-btn';c.dataset.cart=card.dataset.id;c.textContent='افزودن به سبد خرید';row.append(c)}
  });
@@ -463,7 +464,7 @@ const usdInput=document.getElementById('usdAmount'),rateInput=document.getElemen
 function formatFa(n){return new Intl.NumberFormat('fa-IR',{maximumFractionDigits:0}).format(Math.round(n));}
 function renderCurrency(){const amount=Math.max(0,Number(usdInput.value)||0);document.getElementById('tomanResult').textContent=formatFa(amount*usdRate)+' تومان';document.getElementById('currencyRateLabel').textContent=formatFa(usdRate)+' تومان';}
 rateInput.value=String(usdRate);usdInput.addEventListener('input',renderCurrency);
-document.getElementById('saveUsdRate').addEventListener('click',()=>{const value=Number(rateInput.value);if(!Number.isFinite(value)||value<=0){alert('یک نرخ معتبر وارد کن.');return;}usdRate=value;try{localStorage.setItem(usdRateKey,String(usdRate));}catch{}renderCurrency();alert('نرخ جدید فقط در همین مرورگر ذخیره شد.');});
+document.getElementById('saveUsdRate').addEventListener('click',()=>{const value=Number(rateInput.value);if(!Number.isFinite(value)||value<=0){alert('یک نرخ معتبر وارد کن.');return;}usdRate=value;try{localStorage.setItem(usdRateKey,String(usdRate));}catch{}renderCurrency();qsa('.price-chip').forEach(chip=>{const card=chip.closest('.card'),info=gameInfo[card?.dataset.id];if(info)chip.textContent=info.price+(matinexToman(info.price)?' · '+matinexToman(info.price):'')});alert('نرخ جدید فقط در همین مرورگر ذخیره شد.');});
 renderCurrency();
 
 ensureCompareButtons();updateFavorites();renderCustomCards();apply();
