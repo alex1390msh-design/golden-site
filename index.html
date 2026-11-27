@@ -45,6 +45,12 @@ body:not(.entered)>header,body:not(.entered)>main,body:not(.entered)>footer{disp
 .welcome-sign strong{color:var(--gold2)}
 @media(max-width:560px){.welcome-inner{padding:28px 8px}.welcome-copy{font-size:12px}.welcome-mark{width:70px;height:70px}}
 
+
+/* MATINEX digital catalog */
+.digital-cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-top:24px}
+.digital-cat{background:linear-gradient(145deg,#171717,#0d0d0d);border:1px solid #333;border-radius:16px;padding:20px;min-height:155px;display:flex;flex-direction:column;justify-content:space-between}
+.digital-cat .icon{font-size:28px}.digital-cat h3{margin:10px 0 6px;color:#f3c969}.digital-cat p{margin:0;color:#aaa;font-size:13px;line-height:1.9}
+.digital-cat .soon{align-self:flex-start;margin-top:14px;border:1px solid #755c2b;color:#e8c16c;border-radius:30px;padding:4px 10px;font-size:11px}
 </style>
 </head>
 <body>
@@ -68,7 +74,7 @@ body:not(.entered)>header,body:not(.entered)>main,body:not(.entered)>footer{disp
  </div>
 </div>
 
-<header><div class="wrap nav"><a class="brand" href="#home">MATINEX<span>.</span></a><nav><a href="#home">خانه</a><a href="#games">کتابخانه بازی</a><a href="#about">درباره ما</a></nav><div class="nav-actions"><button type="button" class="admin-open" id="accountOpen">ورود / ثبت‌نام</button><button type="button" class="admin-open" id="cartOpen">سبد خرید <span class="cart-count" id="cartCount">۰</span></button><button type="button" class="admin-open" id="adminOpen">مدیریت</button><a class="nav-cta" href="#games">کشف بازی‌ها</a></div></div></header>
+<header><div class="wrap nav"><a class="brand" href="#home">MATINEX<span>.</span></a><nav><a href="#home">خانه</a><a href="#games">کتابخانه بازی</a><a href="#digital-products">محصولات دیجیتال</a><a href="#about">درباره ما</a></nav><div class="nav-actions"><button type="button" class="admin-open" id="accountOpen">ورود / ثبت‌نام</button><button type="button" class="admin-open" id="cartOpen">سبد خرید <span class="cart-count" id="cartCount">۰</span></button><button type="button" class="admin-open" id="adminOpen">مدیریت</button><a class="nav-cta" href="#games">کشف بازی‌ها</a></div></div></header>
 <main>
 <section class="hero" id="home"><div class="wrap"><div class="eyebrow">WELCOME TO THE NEXT LEVEL</div><h1>دنیای بازی،<br><span>بدون محدودیت.</span></h1><p>بازی موردعلاقه‌ات را پیدا کن، مشخصات و سیستم موردنیازش را بررسی کن و برای دریافت آن به صفحه رسمی سازنده یا فروشگاه معتبر برو.</p><div class="actions"><a class="btn btn-gold" href="#games">مشاهده کتابخانه</a><a class="btn btn-outline" href="#about">درباره MATINEX</a><button class="btn btn-outline" id="shareSite" type="button">اشتراک‌گذاری سایت ↗</button></div><div class="stats"><div class="stat"><strong id="gameCount">۶+</strong><small>بازی منتخب</small></div><div class="stat"><strong>PC</strong><small>تمرکز روی کامپیوتر</small></div><div class="stat"><strong>OFFICIAL</strong><small>لینک منابع رسمی</small></div></div></div></section>
 <section id="games"><div class="wrap"><div class="section-head"><div><div class="eyebrow">GAME LIBRARY</div><h2>کتابخانه بازی‌ها</h2><p>جست‌وجو کن، دسته‌بندی را انتخاب کن و مشخصات بازی را ببین.</p></div></div>
@@ -103,6 +109,17 @@ body:not(.entered)>header,body:not(.entered)>main,body:not(.entered)>footer{disp
 <article class="card" data-id="ashorthike" data-name="a short hike ای شورت هایک" data-category="offline adventure paid" data-title="A Short Hike"><div class="cover"><span class="tag">پولی</span><img src="https://cdn.cloudflare.steamstatic.com/steam/apps/1055540/header.jpg" alt="تصویر A Short Hike" loading="lazy" onerror="this.style.display='none'"><b>A SHORT HIKE</b></div><div class="card-body"><h3>A Short Hike</h3><p>در جزیره‌ای آرام قدم بزن، مسیرهای تازه پیدا کن و طبیعت را کشف کن.</p><div class="meta"><span>اکتشاف</span><span>آفلاین</span><span>PC</span></div><div class="card-buttons"><button type="button" class="details-btn" data-game="ashorthike">مشاهده جزئیات</button><button type="button" class="favorite-btn" data-fav="ashorthike" aria-label="افزودن به علاقه‌مندی‌ها">☆</button></div><div class="card-foot"><small>Steam</small><a class="download" href="https://store.steampowered.com/app/1055540/" target="_blank" rel="noopener noreferrer">صفحه بازی ↗</a></div></div></article>
 <article class="card" data-id="humanfallflat" data-name="human fall flat هیومن فال فلت" data-category="offline adventure paid" data-title="Human: Fall Flat"><div class="cover"><span class="tag">پولی</span><img src="https://cdn.cloudflare.steamstatic.com/steam/apps/477160/header.jpg" alt="تصویر Human Fall Flat" loading="lazy" onerror="this.style.display='none'"><b>HUMAN FALL FLAT</b></div><div class="card-body"><h3>Human: Fall Flat</h3><p>معماهای فیزیکی بامزه را به‌تنهایی یا همراه دوستان حل کن.</p><div class="meta"><span>معمایی</span><span>گروهی</span><span>PC</span></div><div class="card-buttons"><button type="button" class="details-btn" data-game="humanfallflat">مشاهده جزئیات</button><button type="button" class="favorite-btn" data-fav="humanfallflat" aria-label="افزودن به علاقه‌مندی‌ها">☆</button></div><div class="card-foot"><small>Steam</small><a class="download" href="https://store.steampowered.com/app/477160/" target="_blank" rel="noopener noreferrer">صفحه بازی ↗</a></div></div></article>
 <div class="notice">MATINEX فایل بازی‌ها را میزبانی نمی‌کند؛ دکمه‌های صفحه بازی به وب‌سایت رسمی سازنده یا فروشگاه معتبر می‌روند. حجم و نیازمندی‌ها ممکن است با آپدیت تغییر کنند؛ قبل از نصب، اطلاعات همان صفحه رسمی را بررسی کن.</div>
+</div></section>
+
+<section id="digital-products"><div class="wrap"><div class="section-head"><div><div class="eyebrow">DIGITAL STORE</div><h2>فروشگاه محصولات دیجیتال</h2><p>ساختار فروشگاه برای گسترش دسته‌بندی‌ها آماده می‌شود؛ عرضه هر محصول پس از بررسی مجوز، تأمین‌کننده و شرایط تحویل فعال خواهد شد.</p></div></div>
+<div class="digital-cats">
+<div class="digital-cat"><div><span class="icon">🎮</span><h3>بازی و بسته‌های الحاقی</h3><p>بازی‌های PC، کنسول و محتوای اضافه با منبع و مجوز معتبر.</p></div><span class="soon">به‌زودی · فعلاً غیرفعال</span></div>
+<div class="digital-cat"><div><span class="icon">🎁</span><h3>گیفت‌کارت</h3><p>کارت‌های هدیه پلتفرم‌ها با مشخصات منطقه و شرایط فعال‌سازی.</p></div><span class="soon">به‌زودی · فعلاً غیرفعال</span></div>
+<div class="digital-cat"><div><span class="icon">🔑</span><h3>کد فعال‌سازی</h3><p>کدهای قانونی و معتبر، همراه با راهنمای فعال‌سازی و محدودیت منطقه.</p></div><span class="soon">به‌زودی · فعلاً غیرفعال</span></div>
+<div class="digital-cat"><div><span class="icon">⭐</span><h3>اشتراک سرویس‌ها</h3><p>اشتراک سرویس‌های دیجیتال فقط از مسیرهای مجاز و مطابق قوانین ارائه‌دهنده.</p></div><span class="soon">به‌زودی · فعلاً غیرفعال</span></div>
+<div class="digital-cat"><div><span class="icon">🧩</span><h3>نرم‌افزار و ابزار</h3><p>نرم‌افزارهای کاربردی و ابزارهای دیجیتال با مجوز توزیع معتبر.</p></div><span class="soon">به‌زودی · فعلاً غیرفعال</span></div>
+<div class="digital-cat"><div><span class="icon">📚</span><h3>آموزش دیجیتال</h3><p>راهنماها و محتوای آموزشی تولیدشده یا دارای اجازه انتشار.</p></div><span class="soon">به‌زودی · فعلاً غیرفعال</span></div>
+</div><div class="notice">این دسته‌ها فعلاً معرفی و پیش‌نمایش هستند؛ هیچ محصولی در این بخش برای خرید یا پرداخت فعال نیست.</div>
 </div></section>
 <section class="about" id="about"><div class="wrap about-box"><div><div class="eyebrow">ABOUT MATINEX</div><h2>بازی خوب، تجربه بهتر.</h2><p>MATINEX GAMING پروژه‌ای مستقل برای معرفی بازی‌های کامپیوتری است. تلاش می‌کنیم اطلاعات پایه، نیازمندی‌های سیستم و راه دسترسی به منبع رسمی هر بازی را یک‌جا در اختیار گیمرها قرار دهیم.</p><div class="creator-credit"><span>بنیان‌گذار، طراح و مدیر پروژه</span><strong>متین شعبانی <b>·</b> MATINEX</strong></div></div><a class="btn btn-outline" href="#home">بازگشت به بالا ↑</a></div></section>
 
