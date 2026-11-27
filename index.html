@@ -287,8 +287,8 @@ function openGame(id,title,info){
  downloadButton.href=hostedPath||'#';
  downloadButton.removeAttribute('download');
  if(hostedPath){downloadButton.setAttribute('download','');$('#modalDownloadState').textContent='✓ فایل روی MATINEX معرفی شده است. با انتخاب دکمه دانلود، دریافت از دامنه خود سایت آغاز می‌شود.';$('#modalInstallHelp').textContent='پس از پایان دانلود، فایل را در پوشه دلخواه ذخیره و طبق راهنمای همراه محصول نصب کن.';}
- else{$('#modalDownloadState').textContent='⏳ فایل این محصول هنوز روی سرور MATINEX بارگذاری نشده است؛ بنابراین فعلاً دانلود مستقیم فعال نیست.';$('#modalInstallHelp').textContent='به محض بارگذاری فایل مجاز در پوشه downloads و ثبت مسیر آن در پنل مدیریت، دکمه دانلود MATINEX فعال می‌شود.';}
- $('#modalLink').href=officialUrl;
+ else{$('#modalDownloadState').innerHTML='⏳ فایل این محصول هنوز روی سرور MATINEX بارگذاری نشده است؛ بنابراین دانلود محصول فعلاً فعال نیست.<br><a href="/downloads/MATINEX-DEMO.txt" download style="color:#f0ca78;text-decoration:underline;font-weight:800">⬇ دانلود فایل آزمایشی از خود MATINEX</a>';$('#modalInstallHelp').textContent='به محض بارگذاری فایل مجاز در پوشه downloads و ثبت مسیر آن در پنل مدیریت، دکمه دانلود MATINEX فعال می‌شود.';}
+ $('#modalLink').href='#';$('#modalLink').hidden=true;
  $('#modalInstallAction').href='#about';
  $('#modalInstallAction').textContent='⚙ راهنمای نصب MATINEX';
  $('#modalDownloadSize').textContent=info.downloadSize||'در صفحه رسمی بررسی شود';
