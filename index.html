@@ -26,9 +26,48 @@ section{padding:48px 0}.section-head{display:flex;justify-content:space-between;
 @media(max-width:560px){.nav-actions{gap:4px;flex-shrink:0}.nav-actions .admin-open{padding:7px 8px;font-size:10px}.nav-actions .nav-cta{display:none}.nav{min-height:64px}nav{display:none}.brand{font-size:20px}.hero{min-height:0;padding:58px 0 45px}.hero p{font-size:12px}.stats{gap:19px}.grid{grid-template-columns:1fr}.cover{height:155px}.section-head{align-items:flex-start;flex-direction:column}.about-box{align-items:flex-start;flex-direction:column}.sortrow{align-items:flex-start;gap:8px;flex-direction:column}.detail-grid{grid-template-columns:1fr 1fr}}
 
 .compare-btn{flex:1;border:1px solid #4b493e;background:#171918;color:#ddd2b6;border-radius:8px;padding:9px 7px;font-size:10px;font-weight:700;cursor:pointer}.compare-btn.selected{background:#332817;border-color:#b58b45;color:var(--gold2)}.compare-tray{position:fixed;z-index:40;bottom:14px;left:50%;transform:translateX(-50%);width:min(560px,calc(100% - 24px));display:none;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;background:#171a18f5;border:1px solid #92733e;border-radius:13px;box-shadow:0 12px 35px #000a;backdrop-filter:blur(12px)}.compare-tray.show{display:flex}.compare-tray span{font-size:11px;color:#e8dfcd}.compare-tray-actions{display:flex;gap:7px}.compare-tray button{border:1px solid #806638;background:#2b2112;color:var(--gold2);border-radius:7px;padding:8px 10px;font-size:10px;cursor:pointer}.compare-tray button.secondary{background:transparent;border-color:#45463f;color:#c4c0b7}.compare-table-wrap{overflow-x:auto;margin-top:15px}.compare-table{width:100%;border-collapse:collapse;min-width:420px;font-size:11px}.compare-table th,.compare-table td{padding:11px 9px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}.compare-table th{color:var(--gold2);background:#1c201d}.compare-table td:first-child{color:#aaa395;white-space:nowrap}.compare-empty{padding:25px;text-align:center;color:var(--muted);font-size:12px}@media(max-width:560px){.compare-tray{bottom:8px}.compare-tray span{max-width:42%;line-height:1.7}.compare-tray button{padding:8px;font-size:9px}}
+
+/* Welcome gateway */
+body:not(.entered)>header,body:not(.entered)>main,body:not(.entered)>footer{display:none}
+#welcomeScreen{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;overflow:auto;padding:28px 18px;background:radial-gradient(ellipse at 50% 20%,#49351a 0,transparent 38%),radial-gradient(ellipse at 10% 90%,#1c211b 0,transparent 38%),#070908}
+.welcome-inner{width:min(850px,100%);text-align:center;position:relative;padding:48px 22px}
+.welcome-mark{width:82px;height:82px;margin:0 auto 20px;border:1px solid #a78346;border-radius:23px;display:grid;place-items:center;color:var(--gold2);font-size:32px;font-weight:900;box-shadow:0 0 55px #d9ad5824;transform:rotate(-4deg)}
+.welcome-kicker{color:var(--gold);font-size:11px;letter-spacing:4px;font-weight:800;direction:ltr}
+.welcome-title{font-size:clamp(38px,8vw,76px);line-height:1.2;font-weight:900;margin:18px 0 12px}
+.welcome-title span{color:var(--gold2)}
+.welcome-copy{max-width:560px;margin:0 auto;color:#b8b4a9;font-size:14px;line-height:2.2}
+.welcome-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:30px}
+.welcome-actions button{min-width:170px}
+.welcome-links{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:36px}
+.welcome-links a{border:1px solid #37362f;background:#111512;color:#d4c8ad;border-radius:9px;padding:10px 15px;font-size:11px;transition:.2s}
+.welcome-links a:hover{border-color:var(--gold);color:var(--gold2);transform:translateY(-2px)}
+.welcome-sign{margin-top:42px;color:#79766d;font-size:10px;letter-spacing:1px}
+.welcome-sign strong{color:var(--gold2)}
+@media(max-width:560px){.welcome-inner{padding:28px 8px}.welcome-copy{font-size:12px}.welcome-mark{width:70px;height:70px}}
+
 </style>
 </head>
 <body>
+
+<div id="welcomeScreen" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+ <div class="welcome-inner">
+  <div class="welcome-mark">M</div>
+  <div class="welcome-kicker">WELCOME TO MATINEX</div>
+  <h1 class="welcome-title" id="welcomeTitle">به دنیای <span>MATINEX</span><br>خوش آمدی</h1>
+  <p class="welcome-copy">اینجا دنیای بازی‌هاست؛ بازی‌های موردعلاقه‌ات را کشف کن، مشخصاتشان را بررسی کن و راه دسترسی به منابع رسمی را پیدا کن.</p>
+  <div class="welcome-actions">
+   <button class="btn btn-gold" id="enterStore" type="button">ورود به فروشگاه بازی‌ها ←</button>
+   <button class="btn btn-outline" id="enterAbout" type="button">آشنایی با MATINEX</button>
+  </div>
+  <div class="welcome-links" aria-label="بخش‌های سایت">
+   <a href="#games" data-welcome-link>فروشگاه بازی‌ها</a>
+   <a href="#about" data-welcome-link>درباره ما</a>
+   <a href="#home" data-welcome-link>صفحه اصلی</a>
+  </div>
+  <div class="welcome-sign">FOUNDED & DESIGNED BY <strong>MATIN SHABANI</strong></div>
+ </div>
+</div>
+
 <header><div class="wrap nav"><a class="brand" href="#home">MATINEX<span>.</span></a><nav><a href="#home">خانه</a><a href="#games">کتابخانه بازی</a><a href="#about">درباره ما</a></nav><div class="nav-actions"><button type="button" class="admin-open" id="accountOpen">ورود / ثبت‌نام</button><button type="button" class="admin-open" id="adminOpen">مدیریت</button><a class="nav-cta" href="#games">کشف بازی‌ها</a></div></div></header>
 <main>
 <section class="hero" id="home"><div class="wrap"><div class="eyebrow">WELCOME TO THE NEXT LEVEL</div><h1>دنیای بازی،<br><span>بدون محدودیت.</span></h1><p>بازی موردعلاقه‌ات را پیدا کن، مشخصات و سیستم موردنیازش را بررسی کن و برای دریافت آن به صفحه رسمی سازنده یا فروشگاه معتبر برو.</p><div class="actions"><a class="btn btn-gold" href="#games">مشاهده کتابخانه</a><a class="btn btn-outline" href="#about">درباره MATINEX</a><button class="btn btn-outline" id="shareSite" type="button">اشتراک‌گذاری سایت ↗</button></div><div class="stats"><div class="stat"><strong id="gameCount">۶+</strong><small>بازی منتخب</small></div><div class="stat"><strong>PC</strong><small>تمرکز روی کامپیوتر</small></div><div class="stat"><strong>OFFICIAL</strong><small>لینک منابع رسمی</small></div></div></div></section>
@@ -286,6 +325,17 @@ $('#shareSite').addEventListener('click',async()=>{
  }catch(err){if(err.name!=='AbortError')alert('لینک سایت را از نوار آدرس مرورگر کپی کن.')}
 });
 ensureCompareButtons();updateFavorites();renderCustomCards();apply();
+
+const welcomeScreen=$('#welcomeScreen');
+function enterMatinex(target){
+ document.body.classList.add('entered');
+ welcomeScreen.remove();
+ if(target){const section=$(target);if(section)section.scrollIntoView({behavior:'smooth',block:'start'})}
+}
+$('#enterStore').addEventListener('click',()=>enterMatinex('#games'));
+$('#enterAbout').addEventListener('click',()=>enterMatinex('#about'));
+qsa('[data-welcome-link]').forEach(link=>link.addEventListener('click',e=>{e.preventDefault();enterMatinex(link.getAttribute('href'))}));
+
 
 
 
