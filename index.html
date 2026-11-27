@@ -66,6 +66,7 @@ section{padding:48px 0}.section-head{display:flex;justify-content:space-between;
 <script>
 
 
+
 const $=s=>document.querySelector(s);
 const qsa=s=>Array.from(document.querySelectorAll(s));
 const safeRead=(key,fallback)=>{try{const v=JSON.parse(localStorage.getItem(key)||'null');return v===null?fallback:v}catch{return fallback}};
@@ -115,8 +116,8 @@ function apply(){
 }
 $('#search').addEventListener('input',apply);
 $('#sort').addEventListener('change',apply);
-qsa('.filter').forEach(b=>b.addEventListener('click',()=>{
- qsa('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');active=b.dataset.filter||'all';apply();
+qsa('.filter[data-filter]').forEach(b=>b.addEventListener('click',()=>{
+ qsa('.filter[data-filter]').forEach(x=>x.classList.remove('active'));b.classList.add('active');active=b.dataset.filter||'all';apply();
 }));
 function getReviewStore(){const v=safeRead(reviewStoreKey,{});return v&&typeof v==='object'&&!Array.isArray(v)?v:{}}
 function renderReviews(){
@@ -276,6 +277,7 @@ $('#shareSite').addEventListener('click',async()=>{
  }catch(err){if(err.name!=='AbortError')alert('لینک سایت را از نوار آدرس مرورگر کپی کن.')}
 });
 ensureCompareButtons();updateFavorites();renderCustomCards();apply();
+
 
 
 </script>
