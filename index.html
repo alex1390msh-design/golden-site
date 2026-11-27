@@ -177,6 +177,7 @@ body:not(.entered)>header,body:not(.entered)>main,body:not(.entered)>footer{disp
 </div>
 </div></section>
 
+<section id="cloudCatalog"><div class="wrap"><div class="section-head"><div><div class="eyebrow">MATINEX STORE</div><h2>محصولات ثبت‌شده در فروشگاه</h2><p>محصولات فعال منتشرشده در پایگاه داده مرکزی؛ قیمت‌ها به تومان هستند.</p></div><button class="btn btn-outline" id="refreshCloudCatalog" type="button">به‌روزرسانی فهرست</button></div><div id="cloudProductsStatus" class="notice" aria-live="polite">برای نمایش محصولات آنلاین، اتصال پایگاه داده باید توسط مسئول پروژه تنظیم شود.</div><div id="cloudProductsGrid" class="grid"></div></div></section>
 <section class="about" id="about"><div class="wrap about-box"><div><div class="eyebrow">ABOUT MATINEX</div><h2>بازی خوب، تجربه بهتر.</h2><p>MATINEX GAMING پروژه‌ای مستقل برای معرفی بازی‌های کامپیوتری است. تلاش می‌کنیم اطلاعات پایه، نیازمندی‌های سیستم و راه دسترسی به منبع رسمی هر بازی را یک‌جا در اختیار گیمرها قرار دهیم.</p><div class="creator-credit"><span>بنیان‌گذار، طراح و مدیر پروژه</span><strong>متین شعبانی <b>·</b> MATINEX</strong></div></div><a class="btn btn-outline" href="#home">بازگشت به بالا ↑</a></div></section>
 
 <div class="compare-tray" id="compareTray" aria-live="polite"><span id="compareCount">۰ بازی برای مقایسه انتخاب شده</span><div class="compare-tray-actions"><button class="secondary" id="clearCompare" type="button">پاک‌کردن</button><button id="openCompare" type="button">مقایسه بازی‌ها</button></div></div>
@@ -475,7 +476,7 @@ function getSbConfig(){return safeRead(sbConfigKey,null)}
 function connectSupabase(){
  const cfg=getSbConfig();
  if(!cfg||!window.supabase?.createClient){sbClient=null;return false}
- try{sbClient=window.supabase.createClient(cfg.url,cfg.anonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});$('#supabaseProjectUrl').value=cfg.url;$('#supabaseAnonKey').value=cfg.anonKey;$('#supabaseConnectionStatus').textContent='تنظیمات اتصال ذخیره شده؛ در حال بررسی نشست...';sbClient.auth.getSession().then(({data,error})=>{$('#supabaseConnectionStatus').textContent=error?'خطا در بررسی نشست: '+error.message:(data.session?'اتصال برقرار است؛ کاربر واردشده: '+(data.session.user.email||'حساب کاربری'):'اتصال به پروژه برقرار است؛ هنوز وارد حساب نشده‌ای.');});return true}catch(err){sbClient=null;$('#supabaseConnectionStatus').textContent='ساخت اتصال ناموفق بود.';return false}
+ try{sbClient=window.supabase.createClient(cfg.url,cfg.anonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});$('#supabaseProjectUrl').value=cfg.url;$('#supabaseAnonKey').value=cfg.anonKey;$('#supabaseConnectionStatus').textContent='تنظیمات اتصال ذخیره شده؛ در حال بررسی نشست...';sbClient.auth.getSession().then(({data,error})=>{$('#supabaseConnectionStatus').textContent=error?'خطا در بررسی نشست: '+error.message:(data.session?'اتصال برقرار است؛ کاربر واردشده: '+(data.session.user.email||'حساب کاربری'):'اتصال به پروژه برقرار است؛ هنوز وارد حساب نشده‌ای.');});loadCloudProducts();return true}catch(err){sbClient=null;$('#supabaseConnectionStatus').textContent='ساخت اتصال ناموفق بود.';return false}
 }
 $('#supabaseConfigForm').addEventListener('submit',e=>{
  e.preventDefault();
@@ -613,7 +614,7 @@ $('#orderLookupForm').addEventListener('submit',async e=>{
 // Server-backed admin dashboard actions (requires a user in admin_users).
 $('#cloudProductForm').addEventListener('submit',async e=>{
  e.preventDefault();const host=$('#cloudAdminResults');host.textContent='در حال ذخیره محصول...';
- try{const result=await invokeCloud('admin-save-product',{body:{name:$('#cloudProductName').value.trim(),slug:$('#cloudProductSlug').value.trim(),price_toman:Number($('#cloudProductPrice').value),delivery_note:$('#cloudProductNote').value.trim(),is_active:$('#cloudProductActive').checked}});host.textContent='محصول در پایگاه داده ثبت شد: '+result.product.name+' · '+new Intl.NumberFormat('fa-IR').format(result.product.price_toman)+' تومان';e.target.reset();$('#cloudProductActive').checked=true}
+ try{const result=await invokeCloud('admin-save-product',{body:{name:$('#cloudProductName').value.trim(),slug:$('#cloudProductSlug').value.trim(),price_toman:Number($('#cloudProductPrice').value),delivery_note:$('#cloudProductNote').value.trim(),is_active:$('#cloudProductActive').checked}});host.textContent='محصول در پایگاه داده ثبت شد: '+result.product.name+' · '+new Intl.NumberFormat('fa-IR').format(result.product.price_toman)+' تومان';e.target.reset();$('#cloudProductActive').checked=true;await loadCloudProducts()}
  catch(err){host.textContent='ثبت محصول انجام نشد: '+(err.message||'خطا')+'؛ اتصال و دسترسی مدیر را بررسی کن.'}
 });
 $('#adminLoadOrders').addEventListener('click',async()=>{
@@ -631,5 +632,35 @@ $('#adminLoadTickets').addEventListener('click',async()=>{
 const oldRenderDemoOrders=renderDemoOrders;
 renderDemoOrders=function(){oldRenderDemoOrders();renderSupportTickets()};
 
+
+// Public product catalog: RLS exposes active products only.
+async function loadCloudProducts(){
+ const status=$('#cloudProductsStatus'),grid=$('#cloudProductsGrid');
+ if(!status||!grid)return;
+ if(!sbClient){status.textContent='فهرست آنلاین هنوز متصل نیست. مسئول پروژه باید تنظیمات Supabase را ثبت کند.';grid.replaceChildren();return}
+ status.textContent='در حال دریافت محصولات فروشگاه...';grid.replaceChildren();
+ try{
+  const {data,error}=await sbClient.from('products').select('id,slug,name,price_toman,delivery_note,created_at').eq('is_active',true).order('created_at',{ascending:false}).limit(60);
+  if(error)throw error;
+  if(!data||!data.length){status.textContent='هنوز محصول فعالی در فروشگاه ثبت نشده است.';return}
+  status.textContent=new Intl.NumberFormat('fa-IR').format(data.length)+' محصول فعال از پایگاه داده دریافت شد.';
+  data.forEach(product=>{
+   const card=document.createElement('article');card.className='card';
+   const cover=document.createElement('div');cover.className='cover';
+   const titleMark=document.createElement('b');titleMark.textContent='MATINEX';cover.append(titleMark);
+   const body=document.createElement('div');body.className='card-body';
+   const h=document.createElement('h3');h.textContent=product.name;
+   const desc=document.createElement('p');desc.textContent=product.delivery_note||'محصول دیجیتال ثبت‌شده در فروشگاه MATINEX.';
+   const meta=document.createElement('div');meta.className='meta';
+   const price=document.createElement('span');price.className='price-chip';price.textContent=new Intl.NumberFormat('fa-IR').format(product.price_toman)+' تومان';
+   const type=document.createElement('span');type.textContent='محصول فروشگاه';meta.append(price,type);
+   const foot=document.createElement('div');foot.className='card-foot';
+   const label=document.createElement('small');label.textContent='شناسه: '+product.slug;
+   const state=document.createElement('span');state.className='download';state.textContent='فعال';
+   foot.append(label,state);body.append(h,desc,meta,foot);card.append(cover,body);grid.append(card);
+  });
+ }catch(err){status.textContent='بارگذاری محصولات انجام نشد. اتصال، جدول products و سیاست دسترسی عمومی را بررسی کنید. '+(err.message||'')}
+}
+$('#refreshCloudCatalog')?.addEventListener('click',loadCloudProducts);
 </script>
 </body></html>
