@@ -47,6 +47,17 @@ section{padding:48px 0}.section-head{display:flex;justify-content:space-between;
 <div class="modal" id="accountModal" role="dialog" aria-modal="true" aria-labelledby="accountTitle"><div class="modal-box"><div class="modal-top"><h2 id="accountTitle">حساب کاربری MATINEX</h2><button class="modal-close" data-close="accountModal" aria-label="بستن">✕</button></div><p>به جمع گیمرهای MATINEX خوش آمدی. این بخش فعلاً پیش‌نمایش ظاهری است؛ ثبت‌نام واقعی پس از اتصال سرویس امن احراز هویت فعال می‌شود.</p><div class="filters"><button class="filter active" id="showLogin" type="button">ورود</button><button class="filter" id="showRegister" type="button">ثبت‌نام</button></div><form class="admin-form" id="accountForm"><label id="nameLabel" hidden>نام نمایشی<input id="accountName" maxlength="30" autocomplete="nickname" placeholder="نام نمایشی"></label><label>ایمیل<input id="accountEmail" type="email" autocomplete="email" placeholder="name@example.com" required></label><label>رمز عبور<input id="accountPassword" type="password" autocomplete="current-password" minlength="8" placeholder="حداقل ۸ نویسه" required></label><button class="btn btn-gold" type="submit" id="accountSubmit">ورود نمایشی</button><p class="modal-note" id="accountMessage" aria-live="polite">فعلاً هیچ ایمیل یا رمزی ذخیره یا ارسال نمی‌شود. برای فعال‌سازی واقعی باید سرویس احراز هویت و پایگاه‌داده امن متصل شود.</p></form></div></div>
 <div class="modal" id="adminModal" role="dialog" aria-modal="true" aria-labelledby="adminTitle"><div class="modal-box"><div class="modal-top"><h2 id="adminTitle">مدیریت کتابخانه</h2><button class="modal-close" data-close="adminModal" aria-label="بستن">✕</button></div><div class="admin-warning">این پنل فعلاً محلی است: بازی‌هایی که اینجا اضافه می‌کنی فقط در همین مرورگر و همین دستگاه ذخیره می‌شوند و روی سایت عمومی برای بقیه نمایش داده نمی‌شوند. برای مدیریت واقعی و عمومی، باید بک‌اند و پایگاه‌داده متصل شود.</div><form class="admin-form" id="adminForm"><label>نام بازی<input id="newName" required maxlength="35" placeholder="مثلاً My New Game"></label><label>توضیح کوتاه<textarea id="newDesc" required maxlength="180" placeholder="معرفی کوتاه بازی"></textarea></label><label>دسته‌بندی<select id="newCategory"><option value="action">اکشن</option><option value="online">آنلاین</option><option value="adventure">ماجراجویی</option><option value="sports">ورزشی</option></select></label><label>لینک رسمی بازی<input id="newUrl" type="url" required placeholder="https://example.com"></label><button class="btn btn-gold" type="submit">افزودن به این مرورگر</button></form><div class="spec-title">بازی‌های اضافه‌شده در این دستگاه</div><div class="admin-list" id="adminList"></div></div></div>
 <footer><div class="wrap footer-row"><span>© 2026 MATINEX GAMING</span><span>Independent gaming directory • Official links</span></div></footer>
+
+<div class="modal" id="secretLoveModal" role="dialog" aria-modal="true" aria-labelledby="secretLoveTitle">
+ <div class="modal-box" style="text-align:center;max-width:520px">
+  <div class="modal-top"><span style="color:#d9ad58;letter-spacing:3px;font-size:11px">A LITTLE SECRET</span><button class="modal-close" data-close="secretLoveModal" aria-label="بستن">✕</button></div>
+  <div style="font-size:42px;margin:12px 0">♡</div>
+  <h2 id="secretLoveTitle" style="color:#e5bd70">برای دینا</h2>
+  <p style="line-height:2.2;color:#e5dfd2">بین تمام صفحه‌های این دنیا،<br>این یکی فقط برای تو ساخته شده.<br>شاید ساده باشد، اما با فکر تو ساخته شده؛<br>امیدوارم همیشه دلت پر از آرامش و لبخند باشد. 🖤</p>
+  <div style="color:#d9ad58;font-size:12px;letter-spacing:2px;margin-top:18px">— MATINEX</div>
+ </div>
+</div>
+
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const gameInfo={
@@ -78,6 +89,21 @@ $('#showLogin').addEventListener('click',()=>setAccountMode('login'));
 $('#showRegister').addEventListener('click',()=>setAccountMode('register'));
 $('#accountForm').addEventListener('submit',e=>{e.preventDefault();$('#accountMessage').textContent='ظاهر فرم آماده است، اما ورود و ساخت حساب هنوز فعال نیست. هیچ اطلاعاتی ذخیره یا ارسال نشده است.';});
 $('#adminForm').addEventListener('submit',e=>{e.preventDefault();const url=$('#newUrl').value.trim();if(!/^https:\/\//i.test(url)){alert('لطفاً لینک امنی که با https شروع می‌شود وارد کن.');return}custom.push({name:$('#newName').value.trim(),desc:$('#newDesc').value.trim(),category:$('#newCategory').value,url});localStorage.setItem('matinex-custom-games',JSON.stringify(custom));e.target.reset();renderCustom();renderCustomCards()});
+
+let logoTapCount=0,logoTapTimer;
+$('.brand').addEventListener('click',e=>{
+ if(!e.target.closest('.brand'))return;
+ logoTapCount++;
+ clearTimeout(logoTapTimer);
+ logoTapTimer=setTimeout(()=>logoTapCount=0,1800);
+ if(logoTapCount>=5){
+  logoTapCount=0;
+  const code=prompt('برای بازکردن بخش مخفی، رمز را وارد کن:');
+  if(code==='DINA27'){$('#secretLoveModal').classList.add('open');document.body.classList.add('lock')}
+  else if(code!==null)alert('رمز درست نیست.');
+ }
+});
+
 updateFavorites();renderCustomCards();apply();
 </script>
 </body></html>
