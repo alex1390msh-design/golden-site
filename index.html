@@ -28,7 +28,7 @@ section{padding:48px 0}.section-head{display:flex;justify-content:space-between;
 <main>
 <section class="hero" id="home"><div class="wrap"><div class="eyebrow">WELCOME TO THE NEXT LEVEL</div><h1>دنیای بازی،<br><span>بدون محدودیت.</span></h1><p>بازی موردعلاقه‌ات را پیدا کن، مشخصات و سیستم موردنیازش را بررسی کن و برای دریافت آن به صفحه رسمی سازنده یا فروشگاه معتبر برو.</p><div class="actions"><a class="btn btn-gold" href="#games">مشاهده کتابخانه</a><a class="btn btn-outline" href="#about">درباره MATINEX</a><button class="btn btn-outline" id="shareSite" type="button">اشتراک‌گذاری سایت ↗</button></div><div class="stats"><div class="stat"><strong id="gameCount">۶+</strong><small>بازی منتخب</small></div><div class="stat"><strong>PC</strong><small>تمرکز روی کامپیوتر</small></div><div class="stat"><strong>OFFICIAL</strong><small>لینک منابع رسمی</small></div></div></div></section>
 <section id="games"><div class="wrap"><div class="section-head"><div><div class="eyebrow">GAME LIBRARY</div><h2>کتابخانه بازی‌ها</h2><p>جست‌وجو کن، دسته‌بندی را انتخاب کن و مشخصات بازی را ببین.</p></div></div>
-<div class="tools"><input class="search" id="search" type="search" placeholder="نام بازی را جست‌وجو کن..." aria-label="جست‌وجوی بازی"><div class="filters"><button type="button" class="filter active" data-filter="all">همه</button><button type="button" class="filter" data-filter="action">اکشن</button><button type="button" class="filter" data-filter="online">آنلاین</button><button type="button" class="filter" data-filter="adventure">ماجراجویی</button><button type="button" class="filter" data-filter="sports">ورزشی</button><button type="button" class="filter" data-filter="offline">آفلاین</button><button type="button" class="filter" data-filter="favorites">علاقه‌مندی‌ها ★</button></div></div>
+<div class="tools"><input class="search" id="search" type="search" placeholder="نام بازی را جست‌وجو کن..." aria-label="جست‌وجوی بازی"><div class="filters"><button type="button" class="filter active" data-filter="all">همه</button><button type="button" class="filter" data-filter="action">اکشن</button><button type="button" class="filter" data-filter="online">آنلاین</button><button type="button" class="filter" data-filter="adventure">ماجراجویی</button><button type="button" class="filter" data-filter="sports">ورزشی</button><button type="button" class="filter" data-filter="offline">آفلاین</button><button type="button" class="filter" data-filter="favorites">علاقه‌مندی‌ها ★</button><button type="button" class="filter" data-filter="recent">بازدیدهای اخیر ◷</button></div></div>
 <div class="sortrow"><span id="resultCount">۶ بازی</span><label>مرتب‌سازی <select id="sort"><option value="default">پیش‌فرض</option><option value="az">نام: الف تا ی</option></select></label></div>
 <div class="grid" id="grid">
 <article class="card" data-id="fortnite" data-name="fortnite فورتنایت" data-category="online action" data-title="Fortnite"><div class="cover"><span class="tag">آنلاین</span><img src="https://cdn2.unrealengine.com/links-admin-FNBR_43-00_MSEE_BR_DiscoverTile_480x270-297aa0e3.jpg" alt="تصویر Fortnite" loading="lazy" onerror="this.style.display='none'"><b>FORTNITE</b></div><div class="card-body"><h3>Fortnite</h3><p>بتل رویال و رقابت‌های آنلاین در حالت‌های متنوع.</p><div class="meta"><span>اکشن</span><span>آنلاین</span><span>PC</span></div><div class="card-buttons"><button type="button" class="details-btn" data-game="fortnite">مشاهده جزئیات</button><button type="button" class="favorite-btn" data-fav="fortnite" aria-label="افزودن به علاقه‌مندی‌ها">☆</button></div><div class="card-foot"><small>صفحه رسمی Epic Games</small><a class="download" href="https://www.fortnite.com/" target="_blank" rel="noopener">صفحه بازی ↗</a></div></div></article>
@@ -67,6 +67,7 @@ section{padding:48px 0}.section-head{display:flex;justify-content:space-between;
 
 
 
+
 const $=s=>document.querySelector(s);
 const qsa=s=>Array.from(document.querySelectorAll(s));
 const safeRead=(key,fallback)=>{try{const v=JSON.parse(localStorage.getItem(key)||'null');return v===null?fallback:v}catch{return fallback}};
@@ -85,6 +86,8 @@ portal2:{genre:'معمایی / ماجراجویی',mode:'داستانی آفلا
 let active='all';
 let favorites=safeRead('matinex-favs',[]);
 if(!Array.isArray(favorites))favorites=[];
+let recentIds=safeRead('matinex-recent-games',[]);
+if(!Array.isArray(recentIds))recentIds=[];
 let custom=safeRead('matinex-custom-games',[]);
 if(!Array.isArray(custom))custom=[];
 custom=custom.filter(g=>g&&typeof g.name==='string').map(g=>({...g,id:g.id||('custom-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8))}));
@@ -105,7 +108,7 @@ function apply(){
   const id=c.dataset.id||'';
   const text=((c.dataset.name||'')+' '+(c.innerText||'')).toLowerCase();
   const categories=(c.dataset.category||'').split(/\s+/);
-  const categoryMatch=active==='all'||(active==='favorites'?favorites.includes(id):categories.includes(active));
+  const categoryMatch=active==='all'||(active==='favorites'?favorites.includes(id):active==='recent'?recentIds.includes(id):categories.includes(active));
   const show=text.includes(q)&&categoryMatch;
   c.style.display=show?'':'none';if(show)visible++;
  });
@@ -149,6 +152,7 @@ $('#reviewForm').addEventListener('submit',e=>{
 function customInfoFor(g){return {genre:g.category||'ثبت نشده',mode:'طبق توضیحات سازنده',price:'ثبت نشده',desc:g.desc||'',url:g.url||'#',spec:[['سیستم موردنیاز','برای اطلاعات دقیق به وب‌سایت رسمی مراجعه کن']]}};
 function openGame(id,title,info){
  if(!info)return;
+ recentIds=[String(id),...recentIds.filter(x=>x!==String(id))].slice(0,6);safeWrite('matinex-recent-games',recentIds);
  activeReviewKey=String(id||title);resetRating();$('#reviewText').value='';renderReviews();
  $('#modalTitle').textContent=title;$('#modalDescription').textContent=info.desc||'';
  $('#modalGenre').textContent=info.genre||'ثبت نشده';$('#modalMode').textContent=info.mode||'نامشخص';$('#modalPrice').textContent=info.price||'اطلاعات ثبت نشده';
@@ -277,6 +281,7 @@ $('#shareSite').addEventListener('click',async()=>{
  }catch(err){if(err.name!=='AbortError')alert('لینک سایت را از نوار آدرس مرورگر کپی کن.')}
 });
 ensureCompareButtons();updateFavorites();renderCustomCards();apply();
+
 
 
 
