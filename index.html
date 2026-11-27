@@ -167,7 +167,7 @@ body:not(.entered)>header,body:not(.entered)>main,body:not(.entered)>footer{disp
 <section id="support"><div class="wrap"><div class="section-head"><div><div class="eyebrow">MATINEX CUSTOMER CARE</div><h2>مرکز راهنمایی و پشتیبانی</h2><p>پاسخ پرسش‌های متداول، بررسی سفارش آزمایشی و ثبت پیام پشتیبانی.</p></div></div>
 <div class="support-grid">
  <div class="support-panel"><h3>پیگیری سفارش</h3><p>شماره سفارش آزمایشی را وارد کن تا وضعیت ذخیره‌شده در همین مرورگر نمایش داده شود.</p><form id="orderLookupForm" class="support-form"><label for="orderLookupInput">شماره سفارش</label><input id="orderLookupInput" placeholder="مثلاً MX-..." maxlength="40" required><button class="btn btn-gold" type="submit">بررسی سفارش</button></form><div id="orderLookupResult" class="support-result" aria-live="polite">هنوز شماره سفارشی جست‌وجو نشده است.</div></div>
- <div class="support-panel"><h3>ارسال پیام به پشتیبانی</h3><p>در این نسخه پیام فقط در مرورگر فعلی ثبت می‌شود و به اپراتور ارسال نمی‌شود.</p><form id="supportForm" class="support-form"><label for="supportName">نام نمایشی</label><input id="supportName" maxlength="35" required placeholder="نام شما"><label for="supportSubject">موضوع</label><select id="supportSubject"><option>مشکل دانلود</option><option>مشکل سفارش</option><option>پرسش درباره محصول</option><option>پیشنهاد برای MATINEX</option><option>سایر موارد</option></select><label for="supportMessage">متن پیام</label><textarea id="supportMessage" maxlength="700" required placeholder="پیامت را بنویس..."></textarea><button class="btn btn-gold" type="submit">ثبت پیام آزمایشی</button></form><div id="supportMessageStatus" class="support-result" aria-live="polite">از نوشتن اطلاعات حساس یا رمز عبور خودداری کن.</div></div>
+ <div class="support-panel"><h3>ارسال پیام به پشتیبانی</h3><p>در این نسخه پیام فقط در مرورگر فعلی ثبت می‌شود و به اپراتور ارسال نمی‌شود.</p><form id="supportForm" class="support-form"><label for="supportName">نام نمایشی</label><input id="supportName" maxlength="35" required placeholder="نام شما"><label for="supportSubject">موضوع</label><select id="supportSubject"><option>مشکل دانلود</option><option>مشکل سفارش</option><option>پرسش درباره محصول</option><option>پیشنهاد برای MATINEX</option><option>سایر موارد</option></select><label for="supportMessage">متن پیام</label><textarea id="supportMessage" maxlength="700" required placeholder="پیامت را بنویس..."></textarea><button class="btn btn-gold" type="submit">ثبت پیام آزمایشی</button></form><div id="supportMessageStatus" class="support-result" aria-live="polite">از نوشتن اطلاعات حساس یا رمز عبور خودداری کن.</div><div class="spec-title" style="margin-top:18px">درخواست‌های قبلی من</div><button class="btn btn-outline" id="loadMyTickets" type="button">نمایش درخواست‌های من</button><div id="myTicketsResult" class="support-result" aria-live="polite">برای دیدن تاریخچه، به حساب کاربری متصل و وارد شو.</div></div>
 </div>
 <div class="faq-panel"><h3>پرسش‌های پرتکرار</h3>
  <details><summary>آیا پرداخت آنلاین فعال است؟</summary><p>خیر. سبد خرید و ثبت سفارش فعلاً نمایشی هستند و هیچ مبلغی دریافت نمی‌شود.</p></details>
@@ -590,6 +590,22 @@ $('#supportForm').addEventListener('submit',async e=>{
  e.target.reset();
  $('#supportMessageStatus').textContent='پیام آزمایشی با شماره '+ticket.id+' فقط در همین مرورگر ذخیره شد؛ برای ارسال آنلاین باید Supabase را متصل کنی.';
  renderSupportTickets();
+});
+$('#loadMyTickets').addEventListener('click',async()=>{
+ const host=$('#myTicketsResult');host.textContent='در حال دریافت درخواست‌های حساب...';
+ if(!sbClient){host.textContent='ابتدا اتصال Supabase را در پنجره حساب کاربری تنظیم کن.';return}
+ try{
+  const data=await invokeCloud('list-my-support-tickets');
+  const tickets=data.tickets||[];host.replaceChildren();
+  if(!tickets.length){host.textContent='هنوز درخواست پشتیبانی ثبت نکرده‌ای.';return}
+  tickets.forEach(ticket=>{
+   const card=document.createElement('div');card.className='review-item';
+   const title=document.createElement('strong');title.textContent=ticket.subject;
+   const status=document.createElement('small');status.textContent='وضعیت: '+({open:'باز',in_progress:'در حال بررسی',answered:'پاسخ داده شده',closed:'بسته شده'}[ticket.status]||ticket.status);
+   const date=document.createElement('small');date.textContent=new Date(ticket.created_at).toLocaleString('fa-IR');
+   card.append(title,status,date);host.append(card);
+  });
+ }catch(err){host.textContent='دریافت تاریخچه ناموفق بود: '+(err.message||'خطا')}
 });
 $('#orderLookupForm').addEventListener('submit',async e=>{
  e.preventDefault();const result=$('#orderLookupResult');result.replaceChildren();
