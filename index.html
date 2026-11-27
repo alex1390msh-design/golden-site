@@ -64,7 +64,11 @@ section{padding:48px 0}.section-head{display:flex;justify-content:space-between;
 </div>
 
 <script>
-const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+
+const $=s=>document.querySelector(s);
+const $=s=>Array.from(document.querySelectorAll(s));
+const safeRead=(key,fallback)=>{try{const v=JSON.parse(localStorage.getItem(key)||'null');return v===null?fallback:v}catch{return fallback}};
+const safeWrite=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value));return true}catch{alert('ذخیره‌سازی مرورگر در دسترس نیست؛ فضای خالی مرورگر را بررسی کن.');return false}};
 const gameInfo={
 fortnite:{genre:'بتل رویال / اکشن',mode:'آنلاین و چندنفره',price:'رایگان؛ خرید درون‌بازی دارد',desc:'در حالت‌های مختلف Fortnite وارد رقابت شو و با بازیکنان دیگر بازی کن.',url:'https://www.fortnite.com/',spec:[['سیستم‌عامل','Windows 10/11 نسخه ۶۴ بیتی'],['پردازنده','Intel Core i3-3225 یا معادل'],['رم','۸ گیگابایت'],['گرافیک','Intel HD 4000 یا AMD Radeon Vega 8'],['فضای ذخیره‌سازی','فضای موردنیاز با نسخه و آپدیت تغییر می‌کند']]},
 minecraft:{genre:'جهان‌باز / بقا و ساخت‌وساز',mode:'تک‌نفره و چندنفره',price:'پولی',desc:'در دنیای Minecraft آزادانه بساز، کاوش کن و ماجراجویی‌های خودت را شکل بده.',url:'https://www.minecraft.net/en-us/store/minecraft-java-bedrock-edition-pc',spec:[['سیستم‌عامل','Windows 10/11 نسخه ۶۴ بیتی'],['پردازنده','Java: حداقل ۴ هسته؛ مدل دقیق به نسخه بستگی دارد'],['رم','Java: ۱۲GB با گرافیک مجتمع؛ ۸GB با گرافیک مجزا'],['گرافیک','Java: پشتیبانی Vulkan 1.3 برای حداقل اعلام‌شده'],['فضای ذخیره‌سازی','Java حدود ۲GB حداقل؛ Bedrock حدود ۴GB حداقل']]},
@@ -76,51 +80,201 @@ stardew:{genre:'شبیه‌سازی زندگی / ماجراجویی',mode:'آف�
 terraria:{genre:'اکشن / ماجراجویی و سندباکس',mode:'آفلاین تک‌نفره؛ چندنفره هم دارد',price:'پولی',desc:'در دنیایی دوبعدی کاوش کن، منابع جمع کن و سازه‌های دلخواهت را بساز.',url:'https://store.steampowered.com/app/105600/',spec:[['سیستم‌عامل','Windows XP یا جدیدتر (نسخه‌های جدید ویندوز را هم بررسی کن)'],['پردازنده','۲GHz'],['رم','۲.۵GB'],['گرافیک','۱۲۸MB و Shader Model 2.0+'],['فضای ذخیره‌سازی','۲۰۰MB']]},
 portal2:{genre:'معمایی / ماجراجویی',mode:'داستانی آفلاین و همکاری دونفره',price:'پولی',desc:'با حل معماهای خلاقانه و استفاده از پورتال‌ها، داستان بازی را پیش ببر.',url:'https://store.steampowered.com/app/620/',spec:[['سیستم‌عامل','Windows XP/Vista/7 یا جدیدتر'],['پردازنده','دو هسته‌ای ۲GHz یا معادل'],['رم','۲GB'],['گرافیک','۱۲۸MB؛ Intel HD Graphics 2000 یا بهتر'],['فضای ذخیره‌سازی','۸GB']]}
 };
-let active='all';let favorites=JSON.parse(localStorage.getItem('matinex-favs')||'[]');let custom=JSON.parse(localStorage.getItem('matinex-custom-games')||'[]');
-function updateFavorites(){ $$('.favorite-btn').forEach(b=>{const yes=favorites.includes(b.dataset.fav);b.classList.toggle('saved',yes);b.textContent=yes?'★':'☆'}); }
-function apply(){const q=$('#search').value.trim().toLowerCase();let visible=0;let cards=$$('.card');if($('#sort').value==='az')cards.sort((a,b)=>a.dataset.title.localeCompare(b.dataset.title));const grid=$('#grid');cards.forEach(c=>grid.appendChild(c));cards.forEach(c=>{const text=(c.dataset.name+' '+c.innerText).toLowerCase();const cat=active==='all'||(active==='favorites'?favorites.includes(c.dataset.id):c.dataset.category.split(' ').includes(active));const ok=text.includes(q)&&cat;c.style.display=ok?'':'none';if(ok)visible++});$('#resultCount').textContent=visible+' بازی';let empty=$('.empty');if(!visible&&!empty){empty=document.createElement('div');empty.className='empty';empty.textContent='بازی‌ای پیدا نشد.';grid.appendChild(empty)}if(visible&&empty)empty.remove();}
-$('#search').addEventListener('input',apply);$('#sort').addEventListener('change',apply);$$('.filter').forEach(b=>b.addEventListener('click',()=>{$$('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');active=b.dataset.filter;apply()}));
-let activeReviewKey='',selectedRating=0;const reviewStoreKey='matinex-reviews-v1';function getReviewStore(){try{const value=JSON.parse(localStorage.getItem(reviewStoreKey)||'{}');return value&&typeof value==='object'?value:{}}catch{return {}}}function renderReviews(){const all=getReviewStore(),items=(all[activeReviewKey]||[]).filter(x=>x&&Number.isInteger(x.rating)&&x.rating>=1&&x.rating<=5&&typeof x.text==='string');const avg=items.length?(items.reduce((sum,x)=>sum+x.rating,0)/items.length).toFixed(1):'—';$('#reviewSummary').textContent=items.length?items.length+' دیدگاه • میانگین امتیاز '+avg+' از ۵':'هنوز امتیازی ثبت نشده است.';const list=$('#reviewList');list.replaceChildren();if(!items.length){const empty=document.createElement('div');empty.className='review-empty';empty.textContent='اولین نفری باش که برای این بازی نظر می‌نویسه.';list.append(empty);return}items.slice().reverse().forEach(item=>{const box=document.createElement('div');box.className='review-item';const head=document.createElement('div');const name=document.createElement('strong');name.textContent='بازیکن';const stars=document.createElement('small');stars.textContent='★'.repeat(item.rating)+'☆'.repeat(5-item.rating);head.append(name,stars);const p=document.createElement('p');p.textContent=item.text;box.append(head,p);list.append(box)})}$$('#ratingPick button').forEach(btn=>btn.addEventListener('click',()=>{selectedRating=Number(btn.dataset.rating);$$('#ratingPick button').forEach(b=>{b.classList.toggle('selected',Number(b.dataset.rating)<=selectedRating);b.setAttribute('aria-pressed',String(Number(b.dataset.rating)===selectedRating))})}));$('#reviewForm').addEventListener('submit',e=>{e.preventDefault();const value=$('#reviewText').value.trim();if(!selectedRating){alert('اول امتیازت رو با ستاره‌ها انتخاب کن.');return}if(!value){alert('لطفاً دیدگاهت رو بنویس.');return}const all=getReviewStore();all[activeReviewKey]=all[activeReviewKey]||[];all[activeReviewKey].push({rating:selectedRating,text:value.slice(0,250),createdAt:new Date().toISOString()});try{localStorage.setItem(reviewStoreKey,JSON.stringify(all))}catch{alert('فضای ذخیره‌سازی مرورگر در دسترس نیست.');return}$('#reviewText').value='';selectedRating=0;$$('#ratingPick button').forEach(b=>{b.classList.remove('selected');b.setAttribute('aria-pressed','false')});renderReviews()});
-function openGame(id,title,customInfo){activeReviewKey=String(id||title);selectedRating=0;$$('#ratingPick button').forEach(b=>{b.classList.remove('selected');b.setAttribute('aria-pressed','false')});$('#reviewText').value='';renderReviews();const info=customInfo||gameInfo[id];if(!info)return;$('#modalTitle').textContent=title;$('#modalDescription').textContent=info.desc;$('#modalGenre').textContent=info.genre;$('#modalMode').textContent=info.mode||'نامشخص';$('#modalPrice').textContent=info.price||'اطلاعات ثبت نشده';$('#modalLink').href=info.url;$('#specRows').innerHTML=(info.spec||[['اطلاعات','برای این بازی هنوز مشخصاتی ثبت نشده است']]).map(row=>'<tr><td>'+row[0]+'</td><td>'+row[1]+'</td></tr>').join('');$('#gameModal').classList.add('open');document.body.classList.add('lock')}
-document.addEventListener('click',e=>{const d=e.target.closest('.details-btn');if(d){const c=d.closest('.card');openGame(d.dataset.game,c.dataset.title||c.querySelector('h3').textContent,gameInfo[d.dataset.game]);}const fav=e.target.closest('.favorite-btn');if(fav){const id=fav.dataset.fav;favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[...favorites,id];localStorage.setItem('matinex-favs',JSON.stringify(favorites));updateFavorites();apply()}});
-function closeModal(id){$('#'+id).classList.remove('open');if(!$('.modal.open'))document.body.classList.remove('lock')}
-$$('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));$$('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id)}));document.addEventListener('keydown',e=>{if(e.key==='Escape')$$('.modal.open').forEach(m=>closeModal(m.id))});
-function renderCustom(){const list=$('#adminList');list.innerHTML='';custom.forEach((g,i)=>{const row=document.createElement('div');row.className='admin-item';const name=document.createElement('span');name.textContent=g.name;const del=document.createElement('button');del.className='delete-btn';del.textContent='حذف';del.addEventListener('click',()=>{custom.splice(i,1);localStorage.setItem('matinex-custom-games',JSON.stringify(custom));renderCustom();renderCustomCards()});row.append(name,del);list.appendChild(row)});if(!custom.length)list.textContent='هنوز بازی اضافه نکرده‌ای.'}
-function renderCustomCards(){$$('.custom-card').forEach(x=>x.remove());custom.forEach((g,i)=>{const c=document.createElement('article');c.className='card custom-card';c.dataset.id='custom-'+i;c.dataset.name=g.name.toLowerCase();c.dataset.title=g.name;c.dataset.category=g.category;c.innerHTML='<div class="cover"><span class="tag">اضافه‌شده</span><b></b></div><div class="card-body"><h3></h3><p></p><div class="meta"><span>PC</span><span>شخصی‌سازی‌شده</span></div><div class="card-buttons"><button class="details-btn">مشاهده جزئیات</button></div><div class="card-foot"><small>لینک واردشده</small><a class="download" target="_blank" rel="noopener">صفحه بازی ↗</a></div></div>';c.querySelector('.cover b').textContent=g.name.toUpperCase();c.querySelector('h3').textContent=g.name;c.querySelector('p').textContent=g.desc;c.querySelector('.download').href=g.url;c.querySelector('.details-btn').addEventListener('click',()=>openGame('custom-'+i,g.name,{genre:g.category,mode:'طبق توضیحات سازنده',price:'ثبت نشده',desc:g.desc,url:g.url,spec:[['سیستم موردنیاز','برای اطلاعات دقیق به وب‌سایت رسمی مراجعه کن']]}));$('#grid').appendChild(c)});$('#gameCount').textContent=(9+custom.length)+'+';ensureCompareButtons();apply()}
+let active='all';
+let favorites=safeRead('matinex-favs',[]);
+if(!Array.isArray(favorites))favorites=[];
+let custom=safeRead('matinex-custom-games',[]);
+if(!Array.isArray(custom))custom=[];
+custom=custom.filter(g=>g&&typeof g.name==='string').map(g=>({...g,id:g.id||('custom-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8))}));
+safeWrite('matinex-custom-games',custom);
+let activeReviewKey='',selectedRating=0;
+const reviewStoreKey='matinex-reviews-v1';
+const compareSelection=[];
+function updateFavorites(){
+ $('.favorite-btn').forEach(b=>{const yes=favorites.includes(b.dataset.fav);b.classList.toggle('saved',yes);b.textContent=yes?'★':'☆';b.setAttribute('aria-pressed',String(yes));});
+}
+function apply(){
+ const q=$('#search').value.trim().toLowerCase();
+ const cards=$('.card');
+ if($('#sort').value==='az')cards.sort((a,b)=>(a.dataset.title||'').localeCompare(b.dataset.title||''));
+ const grid=$('#grid');cards.forEach(c=>grid.appendChild(c));
+ let visible=0;
+ cards.forEach(c=>{
+  const id=c.dataset.id||'';
+  const text=((c.dataset.name||'')+' '+(c.innerText||'')).toLowerCase();
+  const categories=(c.dataset.category||'').split(/\s+/);
+  const categoryMatch=active==='all'||(active==='favorites'?favorites.includes(id):categories.includes(active));
+  const show=text.includes(q)&&categoryMatch;
+  c.style.display=show?'':'none';if(show)visible++;
+ });
+ $('#resultCount').textContent=visible+' بازی';
+ let empty=$('.empty');
+ if(!visible&&!empty){empty=document.createElement('div');empty.className='empty';empty.textContent='بازی‌ای پیدا نشد.';grid.appendChild(empty)}
+ if(visible&&empty)empty.remove();
+}
+$('#search').addEventListener('input',apply);
+$('#sort').addEventListener('change',apply);
+$('.filter').forEach(b=>b.addEventListener('click',()=>{
+ $('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');active=b.dataset.filter||'all';apply();
+}));
+function getReviewStore(){const v=safeRead(reviewStoreKey,{});return v&&typeof v==='object'&&!Array.isArray(v)?v:{}}
+function renderReviews(){
+ const all=getReviewStore(),items=(Array.isArray(all[activeReviewKey])?all[activeReviewKey]:[]).filter(x=>x&&Number.isInteger(x.rating)&&x.rating>=1&&x.rating<=5&&typeof x.text==='string');
+ const avg=items.length?(items.reduce((sum,x)=>sum+x.rating,0)/items.length).toFixed(1):'—';
+ $('#reviewSummary').textContent=items.length?items.length+' دیدگاه • میانگین امتیاز '+avg+' از ۵':'هنوز امتیازی ثبت نشده است.';
+ const list=$('#reviewList');list.replaceChildren();
+ if(!items.length){const empty=document.createElement('div');empty.className='review-empty';empty.textContent='اولین نفری باش که برای این بازی نظر می‌نویسه.';list.append(empty);return}
+ items.slice().reverse().forEach(item=>{
+  const box=document.createElement('div');box.className='review-item';
+  const head=document.createElement('div'),name=document.createElement('strong'),stars=document.createElement('small'),p=document.createElement('p');
+  name.textContent='بازیکن';stars.textContent='★'.repeat(item.rating)+'☆'.repeat(5-item.rating);head.append(name,stars);p.textContent=item.text;box.append(head,p);list.append(box);
+ });
+}
+function resetRating(){selectedRating=0;$('#ratingPick button').forEach(b=>{b.classList.remove('selected');b.setAttribute('aria-pressed','false')})}
+$('#ratingPick button').forEach(btn=>btn.addEventListener('click',()=>{
+ selectedRating=Number(btn.dataset.rating);
+ $('#ratingPick button').forEach(b=>{const on=Number(b.dataset.rating)<=selectedRating;b.classList.toggle('selected',on);b.setAttribute('aria-pressed',String(Number(b.dataset.rating)===selectedRating))});
+}));
+$('#reviewForm').addEventListener('submit',e=>{
+ e.preventDefault();const value=$('#reviewText').value.trim();
+ if(!selectedRating){alert('اول امتیازت رو با ستاره‌ها انتخاب کن.');return}
+ if(!value){alert('لطفاً دیدگاهت رو بنویس.');return}
+ const all=getReviewStore();all[activeReviewKey]=Array.isArray(all[activeReviewKey])?all[activeReviewKey]:[];
+ all[activeReviewKey].push({rating:selectedRating,text:value.slice(0,250),createdAt:new Date().toISOString()});
+ if(!safeWrite(reviewStoreKey,all))return;
+ $('#reviewText').value='';resetRating();renderReviews();
+});
+function customInfoFor(g){return {genre:g.category||'ثبت نشده',mode:'طبق توضیحات سازنده',price:'ثبت نشده',desc:g.desc||'',url:g.url||'#',spec:[['سیستم موردنیاز','برای اطلاعات دقیق به وب‌سایت رسمی مراجعه کن']]}};
+function openGame(id,title,info){
+ if(!info)return;
+ activeReviewKey=String(id||title);resetRating();$('#reviewText').value='';renderReviews();
+ $('#modalTitle').textContent=title;$('#modalDescription').textContent=info.desc||'';
+ $('#modalGenre').textContent=info.genre||'ثبت نشده';$('#modalMode').textContent=info.mode||'نامشخص';$('#modalPrice').textContent=info.price||'اطلاعات ثبت نشده';
+ $('#modalLink').href=info.url||'#';
+ const rows=Array.isArray(info.spec)?info.spec:[['اطلاعات','برای این بازی هنوز مشخصاتی ثبت نشده است']];
+ $('#specRows').replaceChildren();
+ rows.forEach(row=>{const tr=document.createElement('tr'),a=document.createElement('td'),b=document.createElement('td');a.textContent=row[0]||'';b.textContent=row[1]||'';tr.append(a,b);$('#specRows').append(tr)});
+ $('#gameModal').classList.add('open');document.body.classList.add('lock');
+}
+function closeModal(id){const m=$('#'+id);if(m)m.classList.remove('open');if(!$('.modal.open'))document.body.classList.remove('lock')}
+document.addEventListener('click',e=>{
+ const target=e.target instanceof Element?e.target:null;if(!target)return;
+ const details=target.closest('.details-btn');
+ if(details){
+  const card=details.closest('.card'),id=details.dataset.game||card?.dataset.id;
+  if(id&&id.startsWith('custom-')){const g=custom.find(x=>x.id===id);if(g)openGame(id,g.name,customInfoFor(g))}
+  else if(id&&gameInfo[id])openGame(id,card?.dataset.title||details.dataset.game,gameInfo[id]);
+ }
+ const fav=target.closest('.favorite-btn');
+ if(fav){const id=fav.dataset.fav;favorites=favorites.includes(id)?favorites.filter(x=>x!==id):favorites.concat(id);if(safeWrite('matinex-favs',favorites)){updateFavorites();apply()}}
+ const cmp=target.closest('.compare-btn');
+ if(cmp){
+  const id=cmp.dataset.compare,at=compareSelection.indexOf(id);
+  if(at>=0)compareSelection.splice(at,1);
+  else if(compareSelection.length>=3){alert('برای مقایسه، حداکثر ۳ بازی انتخاب کن.');return}
+  else compareSelection.push(id);
+  syncCompareUI();
+ }
+ const close=target.closest('[data-close]');if(close)closeModal(close.dataset.close);
+});
+$('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id)}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('.modal.open').forEach(m=>closeModal(m.id))});
+function renderCustom(){
+ const list=$('#adminList');list.replaceChildren();
+ custom.forEach(g=>{
+  const row=document.createElement('div');row.className='admin-item';
+  const name=document.createElement('span');name.textContent=g.name;
+  const del=document.createElement('button');del.type='button';del.className='delete-btn';del.textContent='حذف';
+  del.addEventListener('click',()=>{
+   custom=custom.filter(x=>x.id!==g.id);if(!safeWrite('matinex-custom-games',custom))return;
+   const ix=compareSelection.indexOf(g.id);if(ix>=0)compareSelection.splice(ix,1);
+   renderCustom();renderCustomCards();syncCompareUI();
+  });
+  row.append(name,del);list.append(row);
+ });
+ if(!custom.length)list.textContent='هنوز بازی اضافه نکرده‌ای.';
+}
+function ensureCompareButtons(){
+ $('.card').forEach(card=>{
+  const row=card.querySelector('.card-buttons');if(!row||row.querySelector('.compare-btn'))return;
+  const b=document.createElement('button');b.type='button';b.className='compare-btn';b.dataset.compare=card.dataset.id;b.textContent='مقایسه';row.append(b);
+ });
+ syncCompareUI();
+}
+function renderCustomCards(){
+ $('.custom-card').forEach(x=>x.remove());
+ custom.forEach(g=>{
+  const c=document.createElement('article');c.className='card custom-card';c.dataset.id=g.id;c.dataset.name=(g.name+' '+g.desc).toLowerCase();c.dataset.title=g.name;c.dataset.category=g.category||'';
+  c.innerHTML='<div class="cover"><span class="tag">اضافه‌شده</span><b></b></div><div class="card-body"><h3></h3><p></p><div class="meta"><span>PC</span><span>شخصی‌سازی‌شده</span></div><div class="card-buttons"><button type="button" class="details-btn">مشاهده جزئیات</button><button type="button" class="favorite-btn" aria-label="افزودن به علاقه‌مندی‌ها">☆</button></div><div class="card-foot"><small>لینک واردشده</small><a class="download" target="_blank" rel="noopener noreferrer">صفحه بازی ↗</a></div></div>';
+  c.querySelector('.cover b').textContent=g.name.toUpperCase();c.querySelector('h3').textContent=g.name;c.querySelector('p').textContent=g.desc;
+  c.querySelector('.details-btn').dataset.game=g.id;c.querySelector('.favorite-btn').dataset.fav=g.id;c.querySelector('.download').href=g.url;
+  $('#grid').append(c);
+ });
+ $('#gameCount').textContent=(9+custom.length)+'+';ensureCompareButtons();updateFavorites();apply();
+}
+function compareValue(id){
+ const card=$('.card').find(x=>x.dataset.id===id);
+ const info=gameInfo[id];if(info)return {name:card?.dataset.title||id,genre:info.genre,mode:info.mode,price:info.price,desc:info.desc};
+ const g=custom.find(x=>x.id===id);if(g)return {name:g.name,genre:g.category||'ثبت نشده',mode:'طبق توضیحات سازنده',price:'ثبت نشده',desc:g.desc||''};
+ return {name:'بازی حذف‌شده',genre:'—',mode:'—',price:'—',desc:'—'};
+}
+function renderCompare(){
+ const host=$('#compareContent');host.replaceChildren();
+ if(!compareSelection.length){const empty=document.createElement('div');empty.className='compare-empty';empty.textContent='هنوز بازی‌ای انتخاب نکرده‌ای.';host.append(empty);return}
+ const table=document.createElement('table');table.className='compare-table';
+ const rows=[['نام بازی','name'],['سبک بازی','genre'],['حالت بازی','mode'],['قیمت پایه','price'],['معرفی','desc']];
+ const head=document.createElement('tr'),first=document.createElement('th');first.textContent='مشخصات';head.append(first);
+ compareSelection.forEach(id=>{const th=document.createElement('th');th.textContent=compareValue(id).name;head.append(th)});
+ const thead=document.createElement('thead');thead.append(head);table.append(thead);
+ const body=document.createElement('tbody');
+ rows.forEach(([label,key])=>{const tr=document.createElement('tr'),td=document.createElement('td');td.textContent=label;tr.append(td);
+  compareSelection.forEach(id=>{const cell=document.createElement('td');cell.textContent=compareValue(id)[key]||'ثبت نشده';tr.append(cell)});body.append(tr)});
+ table.append(body);const wrap=document.createElement('div');wrap.className='compare-table-wrap';wrap.append(table);host.append(wrap);
+}
+$('#openCompare').addEventListener('click',()=>{renderCompare();$('#compareModal').classList.add('open');document.body.classList.add('lock')});
+$('#clearCompare').addEventListener('click',()=>{compareSelection.length=0;syncCompareUI();renderCompare()});
+function syncCompareUI(){
+ const tray=$('#compareTray');tray.classList.toggle('show',compareSelection.length>0);
+ $('#compareCount').textContent=compareSelection.length+' از ۳ بازی انتخاب شده';
+ $('.compare-btn').forEach(b=>{const yes=compareSelection.includes(b.dataset.compare);b.classList.toggle('selected',yes);b.textContent=yes?'✓ انتخاب شد':'مقایسه';b.setAttribute('aria-pressed',String(yes))});
+}
+function persistCustom(){return safeWrite('matinex-custom-games',custom)}
 $('#adminOpen').addEventListener('click',()=>{$('#adminModal').classList.add('open');document.body.classList.add('lock');renderCustom()});
+$('#adminForm').addEventListener('submit',e=>{
+ e.preventDefault();const name=$('#newName').value.trim(),desc=$('#newDesc').value.trim(),url=$('#newUrl').value.trim(),category=$('#newCategory').value;
+ if(!name||!desc){alert('نام و توضیحات بازی را کامل وارد کن.');return}
+ try{const parsed=new URL(url);if(parsed.protocol!=='https:')throw new Error()}catch{alert('لطفاً یک لینک معتبر که با https شروع می‌شود وارد کن.');return}
+ if(custom.some(g=>g.name.toLowerCase()===name.toLowerCase())){alert('این بازی قبلاً در فهرست محلی اضافه شده است.');return}
+ custom.push({id:'custom-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7),name,desc,category,url});
+ if(!persistCustom()){custom.pop();return}
+ e.target.reset();renderCustom();renderCustomCards();
+});
 let accountMode='login';
-function setAccountMode(mode){accountMode=mode;$('#nameLabel').hidden=mode==='login';$('#accountName').required=mode==='register';$('#accountPassword').autocomplete=mode==='login'?'current-password':'new-password';$('#accountSubmit').textContent=mode==='login'?'ورود نمایشی':'ثبت‌نام نمایشی';$('#showLogin').classList.toggle('active',mode==='login');$('#showRegister').classList.toggle('active',mode==='register');$('#accountMessage').textContent='این نسخه فقط پیش‌نمایش است؛ اطلاعات ورود ذخیره یا ارسال نمی‌شود. برای حساب واقعی باید احراز هویت امن راه‌اندازی شود.'}
+function setAccountMode(mode){
+ accountMode=mode;$('#nameLabel').hidden=mode==='login';$('#accountName').required=mode==='register';
+ $('#accountPassword').autocomplete=mode==='login'?'current-password':'new-password';
+ $('#accountSubmit').textContent=mode==='login'?'ورود نمایشی':'ثبت‌نام نمایشی';
+ $('#showLogin').classList.toggle('active',mode==='login');$('#showRegister').classList.toggle('active',mode==='register');
+ $('#accountMessage').textContent='این بخش فعلاً نمایشی است؛ اطلاعات ورود ذخیره یا ارسال نمی‌شود و حساب واقعی ساخته نمی‌شود.';
+}
 $('#accountOpen').addEventListener('click',()=>{$('#accountModal').classList.add('open');document.body.classList.add('lock');setAccountMode('login')});
 $('#showLogin').addEventListener('click',()=>setAccountMode('login'));
 $('#showRegister').addEventListener('click',()=>setAccountMode('register'));
-$('#accountForm').addEventListener('submit',e=>{e.preventDefault();$('#accountMessage').textContent='ظاهر فرم آماده است، اما ورود و ساخت حساب هنوز فعال نیست. هیچ اطلاعاتی ذخیره یا ارسال نشده است.';});
-$('#adminForm').addEventListener('submit',e=>{e.preventDefault();const url=$('#newUrl').value.trim();if(!/^https:\/\//i.test(url)){alert('لطفاً لینک امنی که با https شروع می‌شود وارد کن.');return}custom.push({name:$('#newName').value.trim(),desc:$('#newDesc').value.trim(),category:$('#newCategory').value,url});localStorage.setItem('matinex-custom-games',JSON.stringify(custom));e.target.reset();renderCustom();renderCustomCards()});
-
+$('#accountForm').addEventListener('submit',e=>{e.preventDefault();$('#accountMessage').textContent='این نسخه هنوز به سرویس ورود امن متصل نیست؛ هیچ اطلاعاتی ذخیره یا ارسال نشد.';});
 let logoTapCount=0,logoTapTimer;
-$('.brand').addEventListener('click',e=>{
- if(!e.target.closest('.brand'))return;
- logoTapCount++;
- clearTimeout(logoTapTimer);
- logoTapTimer=setTimeout(()=>logoTapCount=0,1800);
- if(logoTapCount>=5){
-  logoTapCount=0;
-  const code=prompt('برای بازکردن بخش مخفی، رمز را وارد کن:');
-  if(code==='DINA27'){$('#secretLoveModal').classList.add('open');document.body.classList.add('lock')}
-  else if(code!==null)alert('رمز درست نیست.');
- }
+$('.brand').addEventListener('click',()=>{
+ logoTapCount++;clearTimeout(logoTapTimer);logoTapTimer=setTimeout(()=>logoTapCount=0,1800);
+ if(logoTapCount>=5){logoTapCount=0;const code=prompt('برای بازکردن بخش مخفی، رمز را وارد کن:');if(code==='DINA27'){$('#secretLoveModal').classList.add('open');document.body.classList.add('lock')}else if(code!==null)alert('رمز درست نیست.')}
 });
-
-$('#shareSite').addEventListener('click',async()=>{const shareData={title:'MATINEX GAMING',text:'بیا نگاهی به MATINEX GAMING بنداز؛ دنیای بازی‌ها با طراحی مشکی و طلایی!',url:location.href};try{if(navigator.share){await navigator.share(shareData)}else if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(location.href);alert('لینک سایت کپی شد؛ حالا می‌تونی برای دوستت بفرستی.')}else{const input=document.createElement('textarea');input.value=location.href;document.body.appendChild(input);input.select();document.execCommand('copy');input.remove();alert('لینک سایت کپی شد؛ حالا می‌تونی برای دوستت بفرستی.')}}catch(e){if(e.name!=='AbortError')alert('برای اشتراک‌گذاری، لینک سایت را از نوار آدرس مرورگر کپی کن.')}});
-
-const compareSelection=[];
-function ensureCompareButtons(){ $$('.card').forEach(card=>{const row=card.querySelector('.card-buttons');if(!row||row.querySelector('.compare-btn'))return;const id=card.dataset.id;const b=document.createElement('button');b.type='button';b.className='compare-btn';b.dataset.compare=id;b.textContent=compareSelection.includes(id)?'✓ انتخاب شد':'مقایسه';row.appendChild(b);});syncCompareUI();}
-function syncCompareUI(){const tray=$('#compareTray');if(!tray)return;tray.classList.toggle('show',compareSelection.length>0);$('#compareCount').textContent=compareSelection.length+' از ۳ بازی انتخاب شده';$$('.compare-btn').forEach(b=>{const yes=compareSelection.includes(b.dataset.compare);b.classList.toggle('selected',yes);b.textContent=yes?'✓ انتخاب شد':'مقایسه';});}
-function compareValue(id){const card=$('.card[data-id="'+CSS.escape(id)+'"]');const info=gameInfo[id];if(info)return {name:card?.dataset.title||id,genre:info.genre,mode:info.mode,price:info.price,desc:info.desc};const customIndex=Number(id.replace('custom-',''));const g=custom[customIndex];return {name:g?.name||card?.dataset.title||id,genre:g?.category||'ثبت نشده',mode:'طبق توضیحات سازنده',price:'ثبت نشده',desc:g?.desc||'اطلاعات ثبت نشده'};}
-function renderCompare(){const host=$('#compareContent');host.replaceChildren();if(!compareSelection.length){const empty=document.createElement('div');empty.className='compare-empty';empty.textContent='هنوز بازی‌ای انتخاب نکرده‌ای.';host.append(empty);return;}const table=document.createElement('table');table.className='compare-table';const rows=[['نام بازی','name'],['سبک بازی','genre'],['حالت بازی','mode'],['قیمت پایه','price'],['معرفی','desc']];const head=document.createElement('tr');const first=document.createElement('th');first.textContent='مشخصات';head.append(first);compareSelection.forEach(id=>{const th=document.createElement('th');th.textContent=compareValue(id).name;head.append(th)});const thead=document.createElement('thead');thead.append(head);table.append(thead);const body=document.createElement('tbody');rows.forEach(([label,key])=>{const tr=document.createElement('tr');const td=document.createElement('td');td.textContent=label;tr.append(td);compareSelection.forEach(id=>{const cell=document.createElement('td');cell.textContent=compareValue(id)[key]||'ثبت نشده';tr.append(cell)});body.append(tr)});table.append(body);const wrap=document.createElement('div');wrap.className='compare-table-wrap';wrap.append(table);host.append(wrap);}
-document.addEventListener('click',e=>{const b=e.target.closest('.compare-btn');if(!b)return;const id=b.dataset.compare;const at=compareSelection.indexOf(id);if(at>=0)compareSelection.splice(at,1);else if(compareSelection.length>=3){alert('برای مقایسه، حداکثر ۳ بازی انتخاب کن.');return;}else compareSelection.push(id);syncCompareUI();});
-$('#openCompare').addEventListener('click',()=>{renderCompare();$('#compareModal').classList.add('open');document.body.classList.add('lock')});
-$('#clearCompare').addEventListener('click',()=>{compareSelection.length=0;syncCompareUI();});
-
+$('#shareSite').addEventListener('click',async()=>{
+ const data={title:'MATINEX GAMING',text:'بیا نگاهی به MATINEX GAMING بنداز؛ دنیای بازی‌ها با طراحی مشکی و طلایی!',url:location.href};
+ try{if(navigator.share){await navigator.share(data);return}
+  if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(location.href)}
+  else{const input=document.createElement('textarea');input.value=location.href;document.body.append(input);input.select();const ok=document.execCommand('copy');input.remove();if(!ok)throw new Error('copy failed')}
+  alert('لینک سایت کپی شد؛ حالا می‌تونی برای دوستت بفرستی.');
+ }catch(err){if(err.name!=='AbortError')alert('لینک سایت را از نوار آدرس مرورگر کپی کن.')}
+});
 ensureCompareButtons();updateFavorites();renderCustomCards();apply();
+
 </script>
 </body></html>
