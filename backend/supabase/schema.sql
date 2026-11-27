@@ -127,3 +127,16 @@ create policy "Users can create their own support tickets"
   with check (auth.uid() = user_id);
 
 -- No public update/delete policy for tickets: status changes must be handled by trusted staff tooling.
+
+
+-- Admin allow-list. Only a trusted project owner should add rows manually in SQL.
+-- There is deliberately no client INSERT/UPDATE/DELETE policy for this table.
+create table if not exists public.admin_users (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+alter table public.admin_users enable row level security;
+drop policy if exists "Admins can verify their own admin membership" on public.admin_users;
+create policy "Admins can verify their own admin membership"
+  on public.admin_users for select to authenticated
+  using (auth.uid() = user_id);
