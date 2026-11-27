@@ -30,6 +30,7 @@ section{padding:48px 0}.section-head{display:flex;justify-content:space-between;
 
 /* Welcome gateway */
 body:not(.entered)>header,body:not(.entered)>main,body:not(.entered)>footer{display:none}
+body.entered #welcomeScreen{display:none!important;visibility:hidden!important;pointer-events:none!important}
 #welcomeScreen{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;overflow:auto;padding:28px 18px;background:radial-gradient(ellipse at 50% 20%,#49351a 0,transparent 38%),radial-gradient(ellipse at 10% 90%,#1c211b 0,transparent 38%),#070908}
 .welcome-inner{width:min(850px,100%);text-align:center;position:relative;padding:48px 22px}
 .welcome-mark{width:82px;height:82px;margin:0 auto 20px;border:1px solid #a78346;border-radius:23px;display:grid;place-items:center;color:var(--gold2);font-size:32px;font-weight:900;box-shadow:0 0 55px #d9ad5824;transform:rotate(-4deg)}
@@ -194,8 +195,8 @@ footer{background:#07070c;border-top:1px solid #6b38a0}
   <h1 class="welcome-title" id="welcomeTitle">به دنیای <span>MATINEX</span><br>خوش آمدی</h1>
   <p class="welcome-copy">اینجا دنیای بازی‌هاست؛ بازی‌های موردعلاقه‌ات را کشف کن، مشخصاتشان را بررسی کن و راه دسترسی به منابع رسمی را پیدا کن.</p>
   <div class="welcome-actions">
-   <button class="btn btn-gold" id="enterStore" type="button">ورود به فروشگاه بازی‌ها ←</button>
-   <button class="btn btn-outline" id="enterAbout" type="button">آشنایی با MATINEX</button>
+   <button class="btn btn-gold" id="enterStore" type="button" onclick="document.body.classList.add('entered');var w=document.getElementById('welcomeScreen');if(w){w.style.setProperty('display','none','important');w.setAttribute('aria-hidden','true');}var g=document.getElementById('games');if(g){g.scrollIntoView({behavior:'auto',block:'start'});}">ورود به فروشگاه بازی‌ها ←</button>
+   <button class="btn btn-outline" id="enterAbout" type="button" onclick="document.body.classList.add('entered');var w=document.getElementById('welcomeScreen');if(w){w.style.setProperty('display','none','important');w.setAttribute('aria-hidden','true');}var a=document.getElementById('about');if(a){a.scrollIntoView({behavior:'auto',block:'start'});}">آشنایی با MATINEX</button>
   </div>
   <div class="welcome-links" aria-label="بخش‌های سایت">
    <a href="#games" data-welcome-link>فروشگاه بازی‌ها</a>
